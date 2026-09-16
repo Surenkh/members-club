@@ -7,7 +7,7 @@ import Toast from "../components/Toast";
 
 export default function ClaimQR() {
   const { id } = useParams();
-  const p = partners.find((x) => x.id === id) || partners[0];
+  const p = partners.items.find((x) => x.id === id) || partners.items[0];
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState("");
   const passCode = p.passCode || "NX-" + p.id.toUpperCase() + "-8841";
