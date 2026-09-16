@@ -4,6 +4,8 @@ logs
 
 # Verification screenshots (local review artifacts)
 shot-*.png
+verify-*.png
+full-*.png
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
