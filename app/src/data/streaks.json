@@ -1,15 +1,25 @@
 {
-  "currentStreak": 6,
-  "longestStreak": 21,
-  "todayClaimed": false,
-  "week": [
-    { "day": "Mon", "xp": 50, "claimed": true },
-    { "day": "Tue", "xp": 75, "claimed": true },
-    { "day": "Wed", "xp": 100, "claimed": true },
-    { "day": "Thu", "xp": 100, "claimed": true },
-    { "day": "Fri", "xp": 125, "claimed": true },
-    { "day": "Sat", "xp": 150, "claimed": true },
-    { "day": "Sun", "xp": 150, "claimed": false, "today": true }
+  "_mock": true,
+  "_note": "Static prototype data transcribed from the Stitch export. Week grid, rewards and copy mirror Stitch.",
+  "streakDays": 14,
+  "streakLabel": "14-Day Streak Active",
+  "dayOfWeek": 4,
+  "claimedCount": 3,
+  "daysLeft": 3,
+  "claimXp": 150,
+  "unlockIn": "14h 22m",
+  "days": [
+    { "day": "D1", "xp": 50, "state": "claimed" },
+    { "day": "D2", "xp": 75, "state": "claimed" },
+    { "day": "D3", "xp": 100, "state": "claimed" },
+    { "day": "D4", "xp": 150, "state": "ready" },
+    { "day": "D5", "xp": 200, "state": "locked", "in": "In 1D" },
+    { "day": "D6", "xp": 300, "state": "locked", "in": "In 2D" }
   ],
-  "milestone": { "at": 7, "reward": "Bonus 300 XP + 2 entries" }
+  "finale": { "label": "Day 7 Finale", "daysLeft": 3, "cash": "$100 USD", "xp": "+1,000 XP" },
+  "wallet": [
+    { "icon": "local_cafe", "name": "Verve Roasters 20% Off", "meta": "QR Pass · Ready to tap", "cta": "Show QR" },
+    { "icon": "checkroom", "name": "Atelier Mercer $75 Bespoke Tailoring Credit", "meta": "", "cta": "Redeem" },
+    { "icon": "hotel", "name": "Pine Ridge Lodge Complimentary 2nd Night", "meta": "Pass", "cta": "View Code" }
+  ]
 }

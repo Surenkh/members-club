@@ -1,33 +1,41 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Plus Jakarta Sans", ui-sans-serif, sans-serif;
 
-  /* Sovereign Tier accent ramp (dark-only build) */
-  --color-ink: #070b14;
-  --color-ink-2: #0b1120;
-  --color-card: #131a2e;
-  --color-card-2: #1a2338;
-  --color-hairline: #263150;
-  --color-hairline-soft: #1d2740;
+  /* Sovereign Tier dark ramp (from Stitch export) */
+  --color-ink: #090d16;
+  --color-ink-2: #060911;
+  --color-card: #131c2e;
+  --color-card-2: #182238;
+  --color-hairline: #1e293b;
+  --color-hairline-soft: #1c2436;
 
-  --color-fg: #eef1ff;
+  --color-fg: #dfe2ef;
   --color-muted: #9aa4c7;
   --color-faint: #8b94b8;
   --color-pine: #052e29;
 
-  --color-indigo: #5b54e8;
-  --color-indigo-bright: #6f67ff;
-  --color-indigo-deep: #3525cd;
-  --color-indigo-soft: rgba(91, 84, 232, 0.16);
+  --color-indigo: #6366f1;
+  --color-indigo-bright: #818cf8;
+  --color-indigo-deep: #4f46e5;
+  --color-cta: #4f46e5;
+  --color-indigo-soft: rgba(99, 102, 241, 0.16);
 
-  --color-teal: #17b8a6;
-  --color-teal-soft: rgba(23, 184, 166, 0.14);
+  --color-teal: #14b8a6;
+  --color-teal-soft: rgba(20, 184, 166, 0.14);
+  --color-teal-pale: #4fdbc8;
 
-  --color-violet: #8a5cf6;
-  --color-violet-soft: rgba(138, 92, 246, 0.16);
+  --color-violet: #a855f7;
+  --color-violet-soft: rgba(168, 85, 247, 0.16);
+  --color-violet-pale: #c084fc;
+  --color-lilac: #c0c1ff;
+  --color-mauve: #ddb7ff;
 
-  --color-gold: #e8c37e;
+  --color-gold: #fbbf24;
+  --color-gold-pale: #fef08a;
+  --color-gold-deep: #b45309;
 
   --shadow-card: 0 8px 24px -4px rgba(3, 6, 18, 0.55);
   --shadow-pop: 0 20px 48px -8px rgba(3, 6, 18, 0.65);
@@ -46,7 +54,7 @@ body {
   margin: 0;
   font-family: var(--font-sans);
   background:
-    radial-gradient(120% 60% at 50% -10%, #16203b 0%, transparent 55%),
+    radial-gradient(120% 60% at 50% -10%, #101a30 0%, transparent 55%),
     var(--color-ink);
   color: var(--color-fg);
   -webkit-font-smoothing: antialiased;
@@ -57,9 +65,9 @@ body {
   min-height: 100dvh;
 }
 
-/* Material Symbols helper */
+/* Material Symbols helper (Outlined, per Stitch export) */
 .ms {
-  font-family: "Material Symbols Rounded";
+  font-family: "Material Symbols Outlined";
   font-weight: normal;
   font-style: normal;
   font-size: 22px;

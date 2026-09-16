@@ -1,94 +1,115 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import partners from "../data/partners.json";
-import member from "../data/member.json";
 import Chip from "../components/Chip";
 import Modal from "../components/Modal";
-import QRPass from "../components/QRPass";
-
-const CATS = ["All Perks", "Food & Beverage", "Aviation & Travel", "Wellness & Spa", "Luxury Retail", "Clubs & Access"];
 
 export default function Partners() {
   const [cat, setCat] = useState("All Perks");
   const [q, setQ] = useState("");
-  const [qr, setQr] = useState(null);
-  const [claimed, setClaimed] = useState(() => new Set(partners.filter((p) => p.claimed).map((p) => p.id)));
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [detail, setDetail] = useState(null);
+  const [claimed, setClaimed] = useState(() => new Set());
+  const [saved, setSaved] = useState(() => new Set());
 
   const list = useMemo(() => {
-    return partners.filter((p) => {
-      const okCat = cat === "All Perks" || p.category === cat;
-      const okQ = !q || (p.name + " " + p.benefit + " " + p.category).toLowerCase().includes(q.toLowerCase());
-      return okCat && okQ;
-    });
+    const inCat = cat === "All Perks" ? partners.items : partners.items.filter((p) => p.category === cat);
+    if (!q) return inCat;
+    return inCat.filter((p) => (p.name + " " + p.benefit + " " + p.category).toLowerCase().includes(q.toLowerCase()));
   }, [cat, q]);
 
+  const claim = (p) => {
+    setClaimed((s) => new Set(s).add(p.id));
+    setDetail(null);
+  };
+
   return (
-    <div className="px-4 pt-5 pb-4">
-      <div className="flex items-center justify-between">
+    <div className="px-4 pt-2 pb-4">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-fg">Partner Privileges</h1>
+          <h1 className="font-display text-[26px] font-bold tracking-tight text-fg">Partner Privileges</h1>
           <p className="mt-1 text-sm text-muted">Curated member concessions & tier perks</p>
         </div>
-        <Chip tone="violet" icon="redeem">{claimed.size} claimed</Chip>
+        <button
+          onClick={() => setSearchOpen(!searchOpen)}
+          aria-label="Search partners"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-hairline bg-card text-muted"
+        >
+          <span className="ms">search</span>
+        </button>
       </div>
 
-      {/* Search */}
-      <div className="mt-4 flex items-center gap-2 rounded-xl border border-hairline bg-card px-3.5">
-        <span className="ms text-faint">search</span>
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search partners"
-          className="w-full bg-transparent py-3 text-sm text-fg outline-none placeholder:text-faint"
-        />
+      {searchOpen && (
+        <div className="mt-3 flex items-center gap-2 rounded-xl border border-hairline bg-card px-3.5">
+          <span className="ms text-faint">search</span>
+          <input
+            autoFocus
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            aria-label="Search partners"
+            className="w-full bg-transparent py-3 text-sm text-fg outline-none placeholder:text-faint"
+          />
+        </div>
+      )}
+
+      {/* Summary chips */}
+      <div className="scroll-thin mt-4 flex gap-2 overflow-x-auto pb-1">
+        <Chip icon="verified">{partners.summary.activePerks} Active Perks</Chip>
+        <Chip icon="redeem" tone="teal">{partners.summary.claimedThisMonth} Claimed This Month</Chip>
+        <Chip icon="workspace_premium" tone="violet">{partners.summary.tierScope}</Chip>
       </div>
 
       {/* Category chips */}
-      <div className="scroll-thin mt-3.5 flex gap-2 overflow-x-auto pb-1">
-        {CATS.map((c) => (
+      <div className="scroll-thin mt-2.5 flex gap-2 overflow-x-auto pb-1">
+        {partners.categories.map((c) => (
           <button
-            key={c}
-            onClick={() => setCat(c)}
+            key={c.key}
+            onClick={() => setCat(c.key)}
             className={`shrink-0 rounded-lg border px-3.5 py-2 text-[12px] font-bold transition ${
-              cat === c ? "border-transparent bg-indigo text-white" : "border-hairline bg-card text-muted"
+              cat === c.key ? "border-transparent bg-cta text-white" : "border-hairline bg-card text-muted"
             }`}
           >
-            {c}
+            {c.key} <span className="tabular opacity-80">({c.count})</span>
           </button>
         ))}
       </div>
 
       {/* Cards */}
-      <div className="mt-4 space-y-3.5">
+      <div className="mt-4 space-y-4">
         {list.map((p) => (
           <div key={p.id} className="overflow-hidden rounded-2xl border border-hairline bg-card">
             <div className="relative">
-              <img src={p.image} alt="" className="h-40 w-full object-cover" />
+              <img src={p.image} alt="" className="h-52 w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
               <div className="absolute left-3 top-3">
-                <Chip tone={p.tier.includes("Sovereign") ? "violet" : p.tier.includes("Apex") ? "gold" : "teal"} icon="workspace_premium">
-                  {p.tier}
-                </Chip>
+                <span className="rounded-md bg-ink/60 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-teal-pale backdrop-blur">{p.tierChip}</span>
               </div>
+              <button
+                onClick={() => setSaved((s) => { const n = new Set(s); n.has(p.id) ? n.delete(p.id) : n.add(p.id); return n; })}
+                aria-label="Save perk"
+                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-ink/60 text-fg backdrop-blur"
+              >
+                <span className={`ms text-[19px] ${saved.has(p.id) ? "fill" : ""}`}>bookmark_border</span>
+              </button>
             </div>
             <div className="p-4">
-              <p className="text-[15px] font-bold text-fg">{p.name}</p>
-              <p className="mt-0.5 text-sm font-semibold text-indigo-bright">{p.benefit}</p>
-              <p className="mt-1 text-xs text-muted">{p.detail}</p>
+              <p className="text-[17px] font-bold leading-snug text-fg">{p.name}</p>
+              <p className="mt-1 text-sm font-bold text-indigo-bright">{p.benefit}</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-muted">{p.detail}</p>
               <div className="mt-3.5 flex items-center gap-2.5">
                 {claimed.has(p.id) ? (
-                  <Link to={`/partners/${p.id}`} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-teal py-3 text-sm font-bold text-pine active:scale-[0.98]">
-                    <span className="ms">qr_code_2</span> View Pass
+                  <Link to={`/partners/${p.id}`} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-teal py-3 text-sm font-bold uppercase tracking-wide text-pine active:scale-[0.98]">
+                    <span className="ms text-[19px]">qr_code_2</span> View Pass
                   </Link>
                 ) : (
                   <button
-                    onClick={() => setClaimed((s) => new Set(s).add(p.id))}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo py-3 text-sm font-bold text-white active:scale-[0.98]"
+                    onClick={() => claim(p)}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta py-3 text-sm font-bold uppercase tracking-wide text-white active:scale-[0.98]"
                   >
-                    <span className="ms">featured_seasonal_and_gifts</span>
-                    {p.category === "Clubs & Access" ? "Claim Privilege" : "Claim Concession"}
+                    <span className="ms text-[19px]">featured_seasonal_and_gifts</span> {p.ctaLabel}
                   </button>
                 )}
-                <button onClick={() => setQr(p)} aria-label="Quick QR" className="flex h-[46px] w-[46px] items-center justify-center rounded-xl border border-hairline bg-card-2 text-muted active:scale-[0.98]">
+                <button onClick={() => setDetail(p)} aria-label="Quick look" className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border border-hairline bg-card-2 text-muted active:scale-[0.98]">
                   <span className="ms">qr_code_2</span>
                 </button>
               </div>
@@ -104,22 +125,55 @@ export default function Partners() {
         )}
       </div>
 
-      {/* QR modal */}
-      <Modal open={!!qr} onClose={() => setQr(null)} labelledBy="qr-title">
-        {qr && (
-          <div className="flex flex-col items-center text-center">
-            <div className="flex w-full items-center justify-between">
-              <h3 id="qr-title" className="text-lg font-bold text-fg">{qr.name}</h3>
-              <button onClick={() => setQr(null)} className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-faint"><span className="ms">close</span></button>
+      {/* Curated section */}
+      <div className="mt-6 flex items-center justify-between">
+        <h2 className="font-display text-[17px] font-bold tracking-tight text-fg">Curated Partner Benefits</h2>
+        <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted">Filtered: {cat === "All Perks" ? "All" : cat}</span>
+      </div>
+
+      {/* How to redeem */}
+      <div className="mt-4 rounded-2xl border border-hairline bg-card p-4">
+        <h3 className="flex items-center gap-2 text-[15px] font-bold text-fg">
+          <span className="ms text-[19px] text-teal-pale">info</span> How to redeem perks
+        </h3>
+        <ol className="mt-3 space-y-2.5">
+          {partners.howTo.map((t, i) => (
+            <li key={i} className="flex gap-2.5 text-[12px] leading-relaxed text-muted">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-soft text-[10px] font-bold text-indigo-bright">{i + 1}</span>
+              {t}
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      {/* Detail modal */}
+      <Modal open={!!detail} onClose={() => setDetail(null)} labelledBy="perk-title">
+        {detail && (
+          <div>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 id="perk-title" className="text-lg font-bold text-fg">{detail.ctaLabel}</h3>
+                <p className="mt-0.5 text-[12px] text-muted">Curated Partner Benefits · Filtered: {cat === "All Perks" ? "All" : cat}</p>
+              </div>
+              <button onClick={() => setDetail(null)} aria-label="Close" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hairline text-faint"><span className="ms">close</span></button>
             </div>
-            <p className="mt-1 text-sm text-muted">{qr.benefit}</p>
-            <div className="mt-5">
-              <QRPass passId={claimed.has(qr.id) ? qr.passCode || "NX-" + qr.id.toUpperCase() : "NX-LOCKED-" + qr.id} />
+            <div className="relative mt-4 overflow-hidden rounded-xl">
+              <img src={detail.image} alt="" className="h-40 w-full object-cover" />
+              <div className="absolute left-2.5 top-2.5">
+                <span className="rounded-md bg-ink/60 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-teal-pale backdrop-blur">{detail.tierChip}</span>
+              </div>
             </div>
-            {!claimed.has(qr.id) && (
-              <p className="mt-3 rounded-xl border border-hairline-soft bg-card px-4 py-2.5 text-[12px] text-muted">
-                Claim this perk to activate your member pass.
-              </p>
+            <p className="mt-3 text-[15px] font-bold text-fg">{detail.name}</p>
+            <p className="mt-0.5 text-sm font-bold text-indigo-bright">{detail.benefit}</p>
+            <p className="mt-1 text-[12px] leading-relaxed text-muted">{detail.detail}</p>
+            {claimed.has(detail.id) ? (
+              <Link to={`/partners/${detail.id}`} className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-teal py-3.5 text-sm font-bold uppercase tracking-wide text-pine">
+                <span className="ms text-[19px]">qr_code_2</span> View Pass
+              </Link>
+            ) : (
+              <button onClick={() => claim(detail)} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-cta py-3.5 text-sm font-bold uppercase tracking-wide text-white active:scale-[0.98]">
+                <span className="ms text-[19px]">featured_seasonal_and_gifts</span> {detail.ctaLabel}
+              </button>
             )}
           </div>
         )}

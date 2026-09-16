@@ -1,19 +1,19 @@
-// Sovereign Tier tokens mirrored for JS consumers (charts, wheel, countdowns)
+// Sovereign Tier tokens mirrored for JS consumers (from Stitch export)
 export const tokens = {
-  ink: "#070b14",
-  card: "#131a2e",
-  hairline: "#263150",
-  fg: "#eef1ff",
+  ink: "#090d16",
+  inkDeep: "#060911",
+  card: "#131c2e",
+  cardLight: "#182238",
+  hairline: "#1e293b",
+  fg: "#dfe2ef",
   muted: "#9aa4c7",
-  indigo: "#5b54e8",
-  indigoBright: "#6f67ff",
-  teal: "#17b8a6",
-  violet: "#8a5cf6",
-  gold: "#e8c37e",
-};
-
-export const tierColor = {
-  Sovereign: "#8a5cf6",
-  Apex: "#e8c37e",
-  Elite: "#17b8a6",
+  indigo: "#6366f1",
+  teal: "#14b8a6",
+  tealPale: "#4fdbc8",
+  violet: "#a855f7",
+  violetPale: "#c084fc",
+  lilac: "#c0c1ff",
+  mauve: "#ddb7ff",
+  gold: "#fbbf24",
+  goldPale: "#fef08a",
 };

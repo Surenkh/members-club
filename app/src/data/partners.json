@@ -1,50 +1,72 @@
-[
-  {
-    "id": "netjets",
-    "name": "NetJets & VistaJet",
-    "category": "Aviation & Travel",
-    "benefit": "Private Terminal Access",
-    "detail": "Complimentary suite upgrade + $200 spa credit on partner stays",
-    "tier": "Sovereign Exclusive",
-    "image": "/assets/jet.jpg",
-    "claimed": true,
-    "passCode": "NX-PS-7741-QX",
-    "featured": true
-  },
-  {
-    "id": "verve",
-    "name": "Verve Single-Origin Roasters",
-    "category": "Food & Beverage",
-    "benefit": "Monthly Reserve Allocation",
-    "detail": "Roaster-direct micro-lot delivery and tasting invitations",
-    "tier": "All Members",
-    "image": "/assets/coffee.jpg",
-    "claimed": false,
-    "passCode": null,
-    "featured": true
-  },
-  {
-    "id": "chedi",
-    "name": "The Chedi & Badrutt's Palace",
-    "category": "Wellness & Spa",
-    "benefit": "Suite Upgrade + Spa Credit",
-    "detail": "Priority suite upgrades, late checkout and $200 spa credit",
-    "tier": "Apex & Sovereign",
-    "image": "/assets/stmoritz.jpg",
-    "claimed": false,
-    "passCode": null,
-    "featured": true
-  },
-  {
-    "id": "bucherer",
-    "name": "Bucherer & AP Private Salons",
-    "category": "Luxury Retail",
-    "benefit": "Private Salon Access",
-    "detail": "By-appointment viewing of allocations and high complications",
-    "tier": "Sovereign Exclusive",
-    "image": "/assets/ap.jpg",
-    "claimed": false,
-    "passCode": null,
-    "featured": true
-  }
-]
+{
+  "_mock": true,
+  "_note": "Static prototype data transcribed from the Stitch export. Copy, states and token format mirror Stitch.",
+  "summary": { "activePerks": 34, "claimedThisMonth": 3, "tierScope": "Sovereign & Apex" },
+  "categories": [
+    { "key": "All Perks", "count": 34 },
+    { "key": "Food & Beverage", "count": 12 },
+    { "key": "Aviation & Travel", "count": 6 },
+    { "key": "Wellness & Spa", "count": 8 },
+    { "key": "Luxury Retail", "count": 5 },
+    { "key": "Clubs & Access", "count": 3 }
+  ],
+  "items": [
+    {
+      "id": "netjets",
+      "name": "NetJets & VistaJet Private Terminal Access",
+      "shortName": "NetJets & VistaJet",
+      "category": "Aviation & Travel",
+      "tierChip": "TIER SPECIAL · APEX & SOVEREIGN",
+      "benefit": "$750 Flight Credit + Chauffeur Transfer",
+      "detail": "Complimentary tarmac escort, priority manifest booking, and fine catering included on all partner departures.",
+      "image": "/assets/part-netjets.jpg",
+      "ctaLabel": "Claim Privilege",
+      "claimed": false,
+      "passCode": "8841-APEX-EXP"
+    },
+    {
+      "id": "verve",
+      "name": "Verve Single-Origin Roasters",
+      "shortName": "Verve Single-Origin Roasters",
+      "category": "Food & Beverage",
+      "tierChip": "FOOD & BEVERAGE · SPECIALTY",
+      "benefit": "20% Off Whole Artisanal Order",
+      "detail": "Complimentary pour-over tasting included with every visit. Valid at all flagship locations.",
+      "image": "/assets/part-verve.jpg",
+      "ctaLabel": "Claim Concession",
+      "claimed": false,
+      "passCode": "7734-VERVE-EXP"
+    },
+    {
+      "id": "chedi",
+      "name": "The Chedi & Badrutt's Palace",
+      "shortName": "The Chedi & Badrutt's Palace",
+      "category": "Wellness & Spa",
+      "tierChip": "HOSPITALITY · SOVEREIGN EXCLUSIVE",
+      "benefit": "Complimentary Suite Upgrade + $200 Spa Credit",
+      "detail": "Guaranteed late 4 PM check-out, bespoke concierge luggage transfer, and welcome Dom Perignon service.",
+      "image": "/assets/part-chedi.jpg",
+      "ctaLabel": "Claim Concession",
+      "claimed": false,
+      "passCode": "6602-CHEDI-EXP"
+    },
+    {
+      "id": "bucherer",
+      "name": "Bucherer & AP Private Salons",
+      "shortName": "Bucherer & AP Private Salons",
+      "category": "Luxury Retail",
+      "tierChip": "LUXURY RETAIL · APEX BENEFIT",
+      "benefit": "VIP Allocation Access & Private Viewing",
+      "detail": "Private suite appointment with dedicated master horologist, private lounge champagne service, and first refusal on allocations.",
+      "image": "/assets/part-bucherer.jpg",
+      "ctaLabel": "Claim Concession",
+      "claimed": false,
+      "passCode": "5519-BUCH-EXP"
+    }
+  ],
+  "howTo": [
+    "Tap Claim or present your digital QR pass at the partner host or checkout counter.",
+    "Present your active tier credentials embedded in your profile pass for instant authorization.",
+    "Concessions and credits apply immediately to your itemized invoice or guest folio."
+  ]
+}
