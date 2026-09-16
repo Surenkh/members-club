@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+
+  /* Sovereign Tier accent ramp (dark-only build) */
+  --color-ink: #070b14;
+  --color-ink-2: #0b1120;
+  --color-card: #131a2e;
+  --color-card-2: #1a2338;
+  --color-hairline: #263150;
+  --color-hairline-soft: #1d2740;
+
+  --color-fg: #eef1ff;
+  --color-muted: #9aa4c7;
+  --color-faint: #8b94b8;
+  --color-pine: #052e29;
+
+  --color-indigo: #5b54e8;
+  --color-indigo-bright: #6f67ff;
+  --color-indigo-deep: #3525cd;
+  --color-indigo-soft: rgba(91, 84, 232, 0.16);
+
+  --color-teal: #17b8a6;
+  --color-teal-soft: rgba(23, 184, 166, 0.14);
+
+  --color-violet: #8a5cf6;
+  --color-violet-soft: rgba(138, 92, 246, 0.16);
+
+  --color-gold: #e8c37e;
+
+  --shadow-card: 0 8px 24px -4px rgba(3, 6, 18, 0.55);
+  --shadow-pop: 0 20px 48px -8px rgba(3, 6, 18, 0.65);
+  --shadow-bar: 0 -8px 24px -4px rgba(3, 6, 18, 0.5);
+
+  --radius-card: 1rem;
+  --radius-btn: 0.75rem;
+  --radius-chip: 0.5rem;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(120% 60% at 50% -10%, #16203b 0%, transparent 55%),
+    var(--color-ink);
+  color: var(--color-fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+/* Material Symbols helper */
+.ms {
+  font-family: "Material Symbols Rounded";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  user-select: none;
+}
+.ms.fill {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+/* Numerals that count must not jitter */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Thin scrollbars for chip rows / carousels */
+.scroll-thin {
+  scrollbar-width: none;
+}
+.scroll-thin::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

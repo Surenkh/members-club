@@ -1,0 +1,50 @@
+[
+  {
+    "id": "netjets",
+    "name": "NetJets & VistaJet",
+    "category": "Aviation & Travel",
+    "benefit": "Private Terminal Access",
+    "detail": "Complimentary suite upgrade + $200 spa credit on partner stays",
+    "tier": "Sovereign Exclusive",
+    "image": "/assets/jet.jpg",
+    "claimed": true,
+    "passCode": "NX-PS-7741-QX",
+    "featured": true
+  },
+  {
+    "id": "verve",
+    "name": "Verve Single-Origin Roasters",
+    "category": "Food & Beverage",
+    "benefit": "Monthly Reserve Allocation",
+    "detail": "Roaster-direct micro-lot delivery and tasting invitations",
+    "tier": "All Members",
+    "image": "/assets/coffee.jpg",
+    "claimed": false,
+    "passCode": null,
+    "featured": true
+  },
+  {
+    "id": "chedi",
+    "name": "The Chedi & Badrutt's Palace",
+    "category": "Wellness & Spa",
+    "benefit": "Suite Upgrade + Spa Credit",
+    "detail": "Priority suite upgrades, late checkout and $200 spa credit",
+    "tier": "Apex & Sovereign",
+    "image": "/assets/stmoritz.jpg",
+    "claimed": false,
+    "passCode": null,
+    "featured": true
+  },
+  {
+    "id": "bucherer",
+    "name": "Bucherer & AP Private Salons",
+    "category": "Luxury Retail",
+    "benefit": "Private Salon Access",
+    "detail": "By-appointment viewing of allocations and high complications",
+    "tier": "Sovereign Exclusive",
+    "image": "/assets/ap.jpg",
+    "claimed": false,
+    "passCode": null,
+    "featured": true
+  }
+]

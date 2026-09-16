@@ -1,0 +1,28 @@
+{
+  "periods": ["Weekly", "Monthly", "All-Time"],
+  "weekly": [
+    { "rank": 1, "name": "Yuki Tanaka", "xp": 9840, "tier": "Apex", "delta": 0 },
+    { "rank": 2, "name": "Amara Okafor", "xp": 9210, "tier": "Sovereign", "delta": 2 },
+    { "rank": 3, "name": "Lucas Meyer", "xp": 8730, "tier": "Sovereign", "delta": -1 },
+    { "rank": 4, "name": "Priya Nair", "xp": 8120, "tier": "Elite", "delta": 1 },
+    { "rank": 5, "name": "Diego Fuentes", "xp": 7480, "tier": "Elite", "delta": 3 },
+    { "rank": 6, "name": "Ingrid Solberg", "xp": 7110, "tier": "Sovereign", "delta": -2 },
+    { "rank": 7, "name": "Alexander Reyes", "xp": 6940, "tier": "Sovereign", "delta": 4, "you": true },
+    { "rank": 8, "name": "Noah Bennett", "xp": 6620, "tier": "Elite", "delta": 0 },
+    { "rank": 9, "name": "Sofia Ricci", "xp": 6380, "tier": "Sovereign", "delta": 1 },
+    { "rank": 10, "name": "Kenji Mori", "xp": 6040, "tier": "Elite", "delta": -3 }
+  ],
+  "monthly": [
+    { "rank": 1, "name": "Amara Okafor", "xp": 38400, "tier": "Sovereign", "delta": 0 },
+    { "rank": 2, "name": "Yuki Tanaka", "xp": 36120, "tier": "Apex", "delta": 1 },
+    { "rank": 3, "name": "Ingrid Solberg", "xp": 33480, "tier": "Sovereign", "delta": -1 },
+    { "rank": 4, "name": "Alexander Reyes", "xp": 31260, "tier": "Sovereign", "delta": 2, "you": true },
+    { "rank": 5, "name": "Lucas Meyer", "xp": 29840, "tier": "Sovereign", "delta": -1 }
+  ],
+  "allTime": [
+    { "rank": 1, "name": "Yuki Tanaka", "xp": 214800, "tier": "Apex", "delta": 0 },
+    { "rank": 2, "name": "Ingrid Solberg", "xp": 198220, "tier": "Sovereign", "delta": 0 },
+    { "rank": 3, "name": "Amara Okafor", "xp": 187650, "tier": "Sovereign", "delta": 0 },
+    { "rank": 4, "name": "Alexander Reyes", "xp": 48250, "tier": "Sovereign", "delta": 0, "you": true }
+  ]
+}

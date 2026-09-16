@@ -1,0 +1,15 @@
+{
+  "currentStreak": 6,
+  "longestStreak": 21,
+  "todayClaimed": false,
+  "week": [
+    { "day": "Mon", "xp": 50, "claimed": true },
+    { "day": "Tue", "xp": 75, "claimed": true },
+    { "day": "Wed", "xp": 100, "claimed": true },
+    { "day": "Thu", "xp": 100, "claimed": true },
+    { "day": "Fri", "xp": 125, "claimed": true },
+    { "day": "Sat", "xp": 150, "claimed": true },
+    { "day": "Sun", "xp": 150, "claimed": false, "today": true }
+  ],
+  "milestone": { "at": 7, "reward": "Bonus 300 XP + 2 entries" }
+}

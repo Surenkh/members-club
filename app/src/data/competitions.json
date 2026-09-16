@@ -1,0 +1,96 @@
+[
+  {
+    "id": "porsche-911",
+    "title": "Porsche 911 GT3 RS",
+    "subtitle": "Weissach Package, Paint to Sample",
+    "image": "/assets/porsche.jpg",
+    "status": "active",
+    "entryPrice": 2.5,
+    "drawDate": "2026-10-02T20:00:00Z",
+    "closesInDays": 6,
+    "pool": 184320,
+    "yourEntries": 10,
+    "bonusEntries": 2,
+    "cashAlternative": 275000,
+    "tags": ["Automotive", "Featured"],
+    "bundles": [
+      { "entries": 10, "bonus": 2, "price": 25, "perEntry": 2.5, "label": null },
+      { "entries": 25, "bonus": 5, "price": 50, "perEntry": 2.0, "label": "Most Popular" },
+      { "entries": 60, "bonus": 15, "price": 100, "perEntry": 1.66, "label": "Best Value" }
+    ],
+    "faq": [
+      { "q": "How does Provably Fair seeding work?", "a": "Each draw commits a server seed hash before entries close. After the draw the seed is revealed so you can verify the result was not altered." },
+      { "q": "Can I opt for the $275,000 cash alternative?", "a": "Yes. Winners may choose the cash alternative at checkout instead of the vehicle." },
+      { "q": "How are automatic member entries distributed?", "a": "Membership tier grants a base allocation each draw. Bonus entries accrue from XP, streaks and partner activity." }
+    ]
+  },
+  {
+    "id": "rolex-leica",
+    "title": "Rolex Submariner Date + Leica M11",
+    "subtitle": "Curated essentials set",
+    "image": "/assets/flatlay.jpg",
+    "status": "active",
+    "entryPrice": 1.5,
+    "drawDate": "2026-10-11T20:00:00Z",
+    "closesInDays": 15,
+    "pool": 96240,
+    "yourEntries": 0,
+    "tags": ["Timepieces", "Photography"],
+    "bundles": [
+      { "entries": 10, "bonus": 1, "price": 15, "perEntry": 1.5, "label": null },
+      { "entries": 25, "bonus": 4, "price": 30, "perEntry": 1.2, "label": "Most Popular" },
+      { "entries": 60, "bonus": 12, "price": 60, "perEntry": 1.0, "label": "Best Value" }
+    ],
+    "faq": []
+  },
+  {
+    "id": "stmoritz",
+    "title": "7 Nights Carlton St. Moritz Penthouse",
+    "subtitle": "Alpine suite, full board",
+    "image": "/assets/stmoritz.jpg",
+    "status": "coming",
+    "entryPrice": 3.0,
+    "drawDate": "2026-11-01T20:00:00Z",
+    "closesInDays": 32,
+    "pool": 0,
+    "yourEntries": 0,
+    "tags": ["Travel", "Hospitality"],
+    "bundles": [],
+    "faq": []
+  },
+  {
+    "id": "monaco-gp",
+    "title": "Monaco Grand Prix VIP Weekend",
+    "subtitle": "Trackside yacht hospitality",
+    "image": "/assets/monaco.jpg",
+    "status": "active",
+    "entryPrice": 2.0,
+    "drawDate": "2026-10-20T20:00:00Z",
+    "closesInDays": 24,
+    "pool": 143980,
+    "yourEntries": 4,
+    "tags": ["Motorsport", "Experience"],
+    "bundles": [
+      { "entries": 10, "bonus": 2, "price": 20, "perEntry": 2.0, "label": null },
+      { "entries": 25, "bonus": 6, "price": 40, "perEntry": 1.6, "label": "Most Popular" },
+      { "entries": 60, "bonus": 18, "price": 90, "perEntry": 1.5, "label": "Best Value" }
+    ],
+    "faq": []
+  },
+  {
+    "id": "ap-royaloak",
+    "title": "Audemars Piguet Royal Oak Jumbo",
+    "subtitle": "Ref. 16202, private salon allocation",
+    "image": "/assets/ap.jpg",
+    "status": "ended",
+    "winner": { "name": "Marcus T.", "memberNo": "NX-0118-3345", "date": "2026-09-06" },
+    "entryPrice": 2.0,
+    "drawDate": "2026-09-06T20:00:00Z",
+    "closesInDays": 0,
+    "pool": 201540,
+    "yourEntries": 6,
+    "tags": ["Timepieces"],
+    "bundles": [],
+    "faq": []
+  }
+]
