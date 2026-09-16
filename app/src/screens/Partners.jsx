@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import partners from "../data/partners.json";
 import Chip from "../components/Chip";
 import Modal from "../components/Modal";
+import QRPass from "../components/QRPass";
+import Toast from "../components/Toast";
 
 export default function Partners() {
   const [cat, setCat] = useState("All Perks");
@@ -11,6 +13,8 @@ export default function Partners() {
   const [detail, setDetail] = useState(null);
   const [claimed, setClaimed] = useState(() => new Set());
   const [saved, setSaved] = useState(() => new Set());
+  const [toast, setToast] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const list = useMemo(() => {
     const inCat = cat === "All Perks" ? partners.items : partners.items.filter((p) => p.category === cat);
@@ -20,7 +24,16 @@ export default function Partners() {
 
   const claim = (p) => {
     setClaimed((s) => new Set(s).add(p.id));
-    setDetail(null);
+    setCopied(false);
+  };
+
+  const copyCode = async (code) => {
+    try {
+      await navigator.clipboard.writeText(code);
+    } catch {}
+    setCopied(true);
+    setToast("Pass code copied");
+    setTimeout(() => setCopied(false), 1800);
   };
 
   return (
@@ -103,7 +116,7 @@ export default function Partners() {
                   </Link>
                 ) : (
                   <button
-                    onClick={() => claim(p)}
+                    onClick={() => setDetail(p)}
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta py-3 text-sm font-bold uppercase tracking-wide text-white active:scale-[0.98]"
                   >
                     <span className="ms text-[19px]">featured_seasonal_and_gifts</span> {p.ctaLabel}
@@ -146,30 +159,42 @@ export default function Partners() {
         </ol>
       </div>
 
-      {/* Detail modal */}
+      {/* Claim + QR pass pop-up */}
       <Modal open={!!detail} onClose={() => setDetail(null)} labelledBy="perk-title">
         {detail && (
           <div>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 id="perk-title" className="text-lg font-bold text-fg">{detail.ctaLabel}</h3>
+                <h3 id="perk-title" className="text-lg font-bold text-fg">{detail.name}</h3>
                 <p className="mt-0.5 text-[12px] text-muted">Curated Partner Benefits · Filtered: {cat === "All Perks" ? "All" : cat}</p>
               </div>
               <button onClick={() => setDetail(null)} aria-label="Close" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hairline text-faint"><span className="ms">close</span></button>
             </div>
             <div className="relative mt-4 overflow-hidden rounded-xl">
-              <img src={detail.image} alt="" className="h-40 w-full object-cover" />
+              <img src={detail.image} alt="" className="h-36 w-full object-cover" />
               <div className="absolute left-2.5 top-2.5">
                 <span className="rounded-md bg-ink/60 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-teal-pale backdrop-blur">{detail.tierChip}</span>
               </div>
             </div>
-            <p className="mt-3 text-[15px] font-bold text-fg">{detail.name}</p>
-            <p className="mt-0.5 text-sm font-bold text-indigo-bright">{detail.benefit}</p>
+            <p className="mt-3 text-sm font-bold text-indigo-bright">{detail.benefit}</p>
             <p className="mt-1 text-[12px] leading-relaxed text-muted">{detail.detail}</p>
             {claimed.has(detail.id) ? (
-              <Link to={`/partners/${detail.id}`} className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-teal py-3.5 text-sm font-bold uppercase tracking-wide text-pine">
-                <span className="ms text-[19px]">qr_code_2</span> View Pass
-              </Link>
+              <div className="mt-4 flex flex-col items-center rounded-2xl border border-teal/40 bg-teal-soft/40 p-4">
+                <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-teal-pale">
+                  <span className="ms fill text-[15px]">verified</span> Privilege claimed · pass ready
+                </p>
+                <div className="mt-3">
+                  <QRPass passId={detail.passCode || `NX-${detail.id.toUpperCase()}`} />
+                </div>
+                <div className="mt-3 flex w-full items-center justify-between rounded-xl border border-hairline bg-card-2 px-4 py-2.5">
+                  <span className="text-sm font-bold tabular text-fg">{detail.passCode || `NX-${detail.id.toUpperCase()}`}</span>
+                  <button onClick={() => copyCode(detail.passCode || detail.id)} className="flex items-center gap-1.5 rounded-lg border border-hairline bg-card px-3 py-1.5 text-[12px] font-bold text-muted active:scale-[0.98]">
+                    <span className="ms text-[16px]">{copied ? "check" : "content_copy"}</span>
+                    {copied ? "Copied" : "Copy"}
+                  </button>
+                </div>
+                <Link to={`/partners/${detail.id}`} className="mt-3 text-[12px] font-bold text-indigo-bright">Open full pass screen</Link>
+              </div>
             ) : (
               <button onClick={() => claim(detail)} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-cta py-3.5 text-sm font-bold uppercase tracking-wide text-white active:scale-[0.98]">
                 <span className="ms text-[19px]">featured_seasonal_and_gifts</span> {detail.ctaLabel}
@@ -178,6 +203,8 @@ export default function Partners() {
           </div>
         )}
       </Modal>
+
+      <Toast message={toast} open={!!toast} onDone={() => setToast("")} />
     </div>
   );
 }

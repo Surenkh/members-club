@@ -162,17 +162,27 @@ export default function Home({ onStreaks }) {
         </div>
         <div className="scroll-thin -mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1">
           {activeCards.map((c) => (
-            <Link to={`/competitions/${c.id}`} key={c.id} className="w-60 shrink-0 snap-start overflow-hidden rounded-2xl border border-hairline bg-card">
+            <Link to={`/competitions/${c.id}`} key={c.id} className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border border-hairline bg-card">
               <div className="relative">
-                <img src={c.image} alt="" className="h-32 w-full object-cover" />
-                <div className="absolute left-2 top-2"><CountdownChip to={drawTarget()} /></div>
+                <img src={c.image} alt="" className="h-36 w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
+                <div className="absolute bottom-2.5 left-2.5">
+                  <CountdownChip to={drawTarget()} />
+                </div>
               </div>
-              <div className="p-3">
-                <p className="truncate text-sm font-bold text-fg">{c.title}</p>
-                <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted">{c.subtitle}</p>
+              <div className="p-3.5">
+                <p className="text-[15px] font-bold leading-snug text-fg">{c.title}{c.titleSuffix ? ` ${c.titleSuffix}` : ""}</p>
+                <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-muted">{c.subtitle}</p>
+                <div className="mt-2.5 flex items-center justify-between rounded-lg bg-card-2 px-2.5 py-2">
+                  <span className="text-[12px] font-bold tabular text-fg">${c.entryPrice.toFixed(2)} <span className="font-semibold text-muted">/ entry</span></span>
+                  {c.pool ? <span className="text-[10px] font-bold uppercase tracking-wider text-teal-pale tabular">{c.pool} pool</span> : null}
+                </div>
+                {c.multiplier && (
+                  <p className="mt-1.5 px-0.5 text-[11px] text-muted">Tier Multiplier: <span className="font-bold text-teal-pale">{c.multiplier} Boost</span></p>
+                )}
                 <div className="mt-2.5 flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-muted tabular">${c.entryPrice.toFixed(2)} / entry</span>
-                  <span className="rounded-lg bg-cta px-3 py-1.5 text-[11px] font-bold text-white">Enter</span>
+                  <span className="text-[11px] font-semibold text-muted tabular">{c.yourEntries > 0 ? `${c.yourEntries} your entries` : "Members draw"}</span>
+                  <span className="rounded-lg bg-cta px-4 py-2 text-[12px] font-bold text-white">Enter</span>
                 </div>
               </div>
             </Link>
@@ -195,12 +205,19 @@ export default function Home({ onStreaks }) {
         </div>
         <div className="scroll-thin -mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1">
           {partners.items.map((p) => (
-            <Link to="/partners" key={p.id} className="w-60 shrink-0 snap-start overflow-hidden rounded-2xl border border-hairline bg-card">
-              <img src={p.image} alt="" className="h-32 w-full object-cover" />
-              <div className="p-3">
-                <p className="truncate text-sm font-bold text-fg">{p.shortName}</p>
-                <p className="mt-0.5 truncate text-[11px] font-semibold text-indigo-bright">{p.benefit}</p>
-                <p className="mt-2 text-[11px] font-bold text-teal-pale">Claim</p>
+            <Link to="/partners" key={p.id} className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border border-hairline bg-card">
+              <div className="relative">
+                <img src={p.image} alt="" className="h-36 w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
+                <div className="absolute bottom-2.5 left-2.5">
+                  <span className="rounded-md bg-ink/60 px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-teal-pale backdrop-blur">{p.tierChip}</span>
+                </div>
+              </div>
+              <div className="p-3.5">
+                <p className="text-[15px] font-bold leading-snug text-fg">{p.shortName}</p>
+                <p className="mt-1 text-[13px] font-bold leading-snug text-indigo-bright">{p.benefit}</p>
+                <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted">{p.detail}</p>
+                <p className="mt-2.5 text-[12px] font-bold text-teal-pale">Claim benefit</p>
               </div>
             </Link>
           ))}
