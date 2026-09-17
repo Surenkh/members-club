@@ -156,7 +156,7 @@ export default function Home() {
     if (r.type === "xp") setXpBonus(store.addXp(r.value));
     if (r.type === "cash") store.addPoints(r.value);
     store.setLastSpin({ label: Array.isArray(r.label) ? r.label.join(" ") : r.label, type: r.type, value: r.value || 0 });
-    setToast({ message: `${r.label} won`, action: { label: "View board", to: "/leaderboard" } });
+    setToast({ message: `${Array.isArray(r.label) ? r.label.join(" ") : r.label} won`, action: { label: "View board", to: "/leaderboard" } });
   };
 
   return (

@@ -1,24 +1,28 @@
 import { useRef, useState } from "react";
 
-// 12 slices in Stitch document order with Stitch segment fills.
-// Labels: "$10 WIN" pairs with a "★ CASH" second line; hub reads "TOP XP".
+// Casino reference styling (user-supplied image): dark metallic rim with purple
+// LED dots, gold pointer, saturated jewel segments, neon-ringed SPIN hub.
+// Segment ORDER matches the reference clockwise from the top. Prize mapping
+// preserves the Stitch outcome set 1:1 (5 XP amounts, 3x $10 cash, 2x retry
+// rendered as ONE MORE SPIN, 2x no-win rendered as LOSE).
 const SLICES = [
-  { label: ["50 XP"], type: "xp", value: 50, color: "#fef08a" },
-  { label: ["No Luck"], type: "none", color: "#cbd5e1" },
-  { label: ["$10 WIN", "★ CASH"], type: "cash", value: 10, color: "#6ee7b7" },
-  { label: ["100 XP"], type: "xp", value: 100, color: "#c7d2fe" },
-  { label: ["Try Again"], type: "retry", color: "#f5d0fe" },
-  { label: ["$10 WIN", "★ CASH"], type: "cash", value: 10, color: "#6ee7b7" },
-  { label: ["150 XP"], type: "xp", value: 150, color: "#93c5fd" },
-  { label: ["No Win"], type: "none", color: "#cbd5e1" },
-  { label: ["200 XP"], type: "xp", value: 200, color: "#fef08a" },
-  { label: ["Try Again"], type: "retry", color: "#f5d0fe" },
-  { label: ["$10 WIN", "★ CASH"], type: "cash", value: 10, color: "#6ee7b7" },
-  { label: ["75 XP"], type: "xp", value: 75, color: "#e9d5ff" },
+  { label: ["XP"], icon: "bolt", type: "xp", value: 50, color: "url(#segPurple)" },
+  { label: ["$"], icon: "paid", type: "cash", value: 10, color: "url(#segGreen)" },
+  { label: ["LOSE"], icon: "close", type: "none", color: "url(#segDark)" },
+  { label: ["XP"], icon: "bolt", type: "xp", value: 100, color: "url(#segPurple)" },
+  { label: ["ONE", "MORE SPIN"], icon: "refresh", type: "retry", color: "url(#segBlue)" },
+  { label: ["XP"], icon: "bolt", type: "xp", value: 150, color: "url(#segPurple)" },
+  { label: ["$"], icon: "paid", type: "cash", value: 10, color: "url(#segGreen)" },
+  { label: ["LOSE"], icon: "close", type: "none", color: "url(#segDark)" },
+  { label: ["XP"], icon: "bolt", type: "xp", value: 200, color: "url(#segPurple)" },
+  { label: ["ONE", "MORE SPIN"], icon: "refresh", type: "retry", color: "url(#segBlue)" },
+  { label: ["$"], icon: "paid", type: "cash", value: 10, color: "url(#segGreen)" },
+  { label: ["XP"], icon: "bolt", type: "xp", value: 75, color: "url(#segPurple)" },
 ];
 
+const ICON_FILL = { bolt: "#e9d5ff", paid: "#ffd75e", close: "#f1f2f6", refresh: "#d7e9ff" };
+
 const SIZE = 320;
-const RIM = 14;
 
 export default function SpinWheel({ onResult, gated, onGate, hideButton }) {
   const [rot, setRot] = useState(0);
@@ -46,77 +50,156 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton }) {
     }, 4200);
   };
 
-  const ticks = Array.from({ length: 48 });
+  const cx = 160;
+  const cy = 160;
+  const RIM_R = 158;
+  const SEG_R = 136;
+  const polar = (a, rad) => [
+    cx + rad * Math.cos(((a - 90) * Math.PI) / 180),
+    cy + rad * Math.sin(((a - 90) * Math.PI) / 180),
+  ];
+  const leds = Array.from({ length: 16 });
 
   return (
     <div className="flex flex-col items-center">
       <div className="relative" style={{ width: SIZE, height: SIZE }}>
         {/* pointer */}
-        <div className="absolute left-1/2 top-[-8px] z-10 -translate-x-1/2">
-          <div className="h-0 w-0 border-l-[11px] border-r-[11px] border-t-[18px] border-l-transparent border-r-transparent border-t-gold drop-shadow-[0_2px_6px_rgba(251,191,36,0.5)]" />
+        <div className="absolute left-1/2 top-[-10px] z-10 -translate-x-1/2">
+          <div className="h-0 w-0 border-l-[12px] border-r-[12px] border-t-[20px] border-l-transparent border-r-transparent border-t-gold drop-shadow-[0_2px_8px_rgba(251,191,36,0.65)]" />
         </div>
-        {/* gold double rim + tick ring */}
-        <div
-          className="absolute inset-0 rounded-full"
-          style={{
-            background: "conic-gradient(from 0deg, #8a6a1f, #fbbf24, #8a6a1f, #fbbf24, #8a6a1f)",
-            boxShadow: spinning
-              ? "0 0 44px 6px rgba(251,191,36,0.45), 0 20px 48px -8px rgba(3,6,18,0.65)"
-              : "0 20px 48px -8px rgba(3,6,18,0.65)",
-            transition: "box-shadow 0.5s ease",
-          }}
-        />
-        <div className="absolute rounded-full bg-[#0b1120]" style={{ inset: RIM - 4 }} />
         <svg
-          className="absolute"
-          style={{ inset: RIM }}
-          width={SIZE - RIM * 2}
-          height={SIZE - RIM * 2}
+          ref={wheelRef}
+          width={SIZE}
+          height={SIZE}
           viewBox="0 0 320 320"
+          className="block"
+          role="img"
+          aria-label="Prize wheel"
         >
-          {ticks.map((_, i) => {
-            const a = (i * 360) / ticks.length;
-            const [x0, y0] = [160 + 150 * Math.cos(((a - 90) * Math.PI) / 180), 160 + 150 * Math.sin(((a - 90) * Math.PI) / 180)];
-            const [x1, y1] = [160 + 144 * Math.cos(((a - 90) * Math.PI) / 180), 160 + 144 * Math.sin(((a - 90) * Math.PI) / 180)];
-            return <line key={i} x1={x0} y1={y0} x2={x1} y2={y1} stroke={i % 4 === 0 ? "#fbbf24" : "#3a4666"} strokeWidth={i % 4 === 0 ? 2.5 : 1.5} />;
+          <defs>
+            <radialGradient id="rimMetal" cx="50%" cy="38%" r="75%">
+              <stop offset="0%" stopColor="#4a505c" />
+              <stop offset="45%" stopColor="#23262e" />
+              <stop offset="80%" stopColor="#101218" />
+              <stop offset="100%" stopColor="#05060a" />
+            </radialGradient>
+            <radialGradient id="segPurple" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#8b3ff5" />
+              <stop offset="60%" stopColor="#5b1ec4" />
+              <stop offset="100%" stopColor="#2e0a63" />
+            </radialGradient>
+            <radialGradient id="segGreen" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#17b978" />
+              <stop offset="60%" stopColor="#0a7a4e" />
+              <stop offset="100%" stopColor="#033a26" />
+            </radialGradient>
+            <radialGradient id="segDark" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#333945" />
+              <stop offset="60%" stopColor="#1b1e25" />
+              <stop offset="100%" stopColor="#0c0e12" />
+            </radialGradient>
+            <radialGradient id="segBlue" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#2f7bff" />
+              <stop offset="60%" stopColor="#12479f" />
+              <stop offset="100%" stopColor="#071c48" />
+            </radialGradient>
+            <radialGradient id="hubDark" cx="50%" cy="35%" r="80%">
+              <stop offset="0%" stopColor="#2c2c34" />
+              <stop offset="100%" stopColor="#0a0a0e" />
+            </radialGradient>
+            <radialGradient id="gloss" cx="50%" cy="12%" r="65%">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.28" />
+              <stop offset="55%" stopColor="#ffffff" stopOpacity="0.05" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+            </radialGradient>
+            <filter id="ledGlow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="3.2" result="b" />
+              <feMerge>
+                <feMergeNode in="b" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <filter id="neonGlow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="4" result="b" />
+              <feMerge>
+                <feMergeNode in="b" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <clipPath id="faceClip">
+              <circle cx={cx} cy={cy} r={SEG_R} />
+            </clipPath>
+          </defs>
+
+          {/* metallic rim */}
+          <circle cx={cx} cy={cy} r={RIM_R} fill="url(#rimMetal)" />
+          <circle cx={cx} cy={cy} r={RIM_R} fill="none" stroke="#000" strokeOpacity="0.6" strokeWidth="2" />
+          <circle cx={cx} cy={cy} r={RIM_R - 3} fill="none" stroke="#6b7280" strokeOpacity="0.35" strokeWidth="1" />
+
+          {/* LED dots */}
+          {leds.map((_, i) => {
+            const a = (i * 360) / leds.length;
+            const [x, y] = polar(a, RIM_R - 11);
+            return (
+              <g key={i} filter="url(#ledGlow)">
+                <circle cx={x} cy={y} r="4" fill="#c084fc" />
+                <circle cx={x} cy={y} r="1.8" fill="#f3e8ff" />
+              </g>
+            );
           })}
-        </svg>
-        <div className="absolute overflow-hidden rounded-full" style={{ inset: RIM + 8, width: SIZE - (RIM + 8) * 2, height: SIZE - (RIM + 8) * 2 }}>
-          <svg
-            ref={wheelRef}
-            width="100%"
-            height="100%"
-            viewBox="0 0 300 300"
-            className="block"
+          <circle cx={cx} cy={cy} r={SEG_R + 4} fill="none" stroke="#0a0b10" strokeWidth="5" />
+
+          {/* rotating face */}
+          <g
             style={{
               transform: `rotate(${rot}deg)`,
+              transformOrigin: "160px 160px",
               transition: spinning ? "transform 4.2s cubic-bezier(0.12, 0.8, 0.08, 1)" : "none",
             }}
           >
             {SLICES.map((s, i) => {
-              const a0 = i * seg, a1 = a0 + seg;
-              const [x0, y0] = [150 + 148 * Math.cos(((a0 - 90) * Math.PI) / 180), 150 + 148 * Math.sin(((a0 - 90) * Math.PI) / 180)];
-              const [x1, y1] = [150 + 148 * Math.cos(((a1 - 90) * Math.PI) / 180), 150 + 148 * Math.sin(((a1 - 90) * Math.PI) / 180)];
-              const [tx, ty] = [150 + 92 * Math.cos(((a0 + seg / 2 - 90) * Math.PI) / 180), 150 + 92 * Math.sin(((a0 + seg / 2 - 90) * Math.PI) / 180)];
+              const a0 = i * seg;
+              const a1 = a0 + seg;
+              const [x0, y0] = polar(a0, SEG_R);
+              const [x1, y1] = polar(a1, SEG_R);
+              const mid = a0 + seg / 2;
+              const [ix, iy] = polar(mid, 106);
+              const [tx, ty] = polar(mid, 88);
+              const fs = s.label.length > 1 ? 10 : 14;
+              const gap = s.label.length > 1 ? 11 : 15;
               return (
                 <g key={i}>
                   <path
-                    d={`M 150 150 L ${x0} ${y0} A 148 148 0 0 1 ${x1} ${y1} Z`}
+                    d={`M ${cx} ${cy} L ${x0} ${y0} A ${SEG_R} ${SEG_R} 0 0 1 ${x1} ${y1} Z`}
                     fill={s.color}
-                    stroke="#090d16"
-                    strokeWidth="2"
+                    stroke="#d9cdf3"
+                    strokeWidth="1.2"
+                    strokeOpacity="0.85"
                   />
+                  <text
+                    x={ix}
+                    y={iy}
+                    fill={ICON_FILL[s.icon]}
+                    fontSize="28"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    style={{ fontFamily: "'Material Symbols Outlined'" }}
+                  >
+                    {s.icon}
+                  </text>
                   {s.label.map((line, li) => (
                     <text
                       key={li}
                       x={tx}
-                      y={ty + (li - (s.label.length - 1) / 2) * 14}
-                      fill="#0b1120"
-                      fontSize="12"
+                      y={ty + (li - (s.label.length - 1) / 2) * gap}
+                      fill="#ffffff"
+                      fontSize={fs}
                       fontWeight="800"
+                      letterSpacing="0.5"
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      transform={`rotate(${a0 + seg / 2} ${tx} ${ty})`}
+                      transform={`rotate(${mid} ${tx} ${ty})`}
+                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                     >
                       {line}
                     </text>
@@ -124,13 +207,31 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton }) {
                 </g>
               );
             })}
-          </svg>
+          </g>
+
+          {/* gloss sweep */}
+          <g clipPath="url(#faceClip)" pointerEvents="none">
+            <ellipse cx={cx} cy={cy - 78} rx="150" ry="90" fill="url(#gloss)" />
+          </g>
+
           {/* hub */}
-          <div className="absolute left-1/2 top-1/2 flex h-[76px] w-[76px] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border-2 border-gold/70 bg-[#090d16] shadow-[0_0_24px_rgba(251,191,36,0.35)]">
-            <span className="ms fill text-[20px] text-gold">bolt</span>
-            <span className="mt-0.5 px-1 text-center text-[8px] font-bold leading-tight tracking-widest text-gold-pale">TOP XP</span>
-          </div>
-        </div>
+          <circle cx={cx} cy={cy} r="48" fill="url(#hubDark)" stroke="#000" strokeOpacity="0.7" strokeWidth="2" />
+          <circle cx={cx} cy={cy} r="44" fill="none" stroke="#b06bff" strokeWidth="3" filter="url(#neonGlow)" />
+          <circle cx={cx} cy={cy} r="44" fill="none" stroke="#e9d5ff" strokeOpacity="0.5" strokeWidth="1" />
+          <polygon points="152,138 152,162 172,150" fill="#efe9ff" />
+          <text
+            x={cx}
+            y={cy + 26}
+            fill="#ffffff"
+            fontSize="21"
+            fontWeight="800"
+            letterSpacing="3"
+            textAnchor="middle"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
+            SPIN
+          </text>
+        </svg>
       </div>
 
       <p className="mt-5 flex items-center gap-1.5 text-[12px] font-semibold text-teal-pale">
@@ -153,7 +254,7 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton }) {
           <p className="text-sm font-bold text-fg">
             {result.type === "xp" && <>+{result.value} XP added to your balance</>}
             {result.type === "cash" && <>${result.value} WIN · CASH added to your balance</>}
-            {result.type === "retry" && <>Free re-spin earned</>}
+            {result.type === "retry" && <>One more spin earned</>}
             {result.type === "none" && <>No win this time</>}
           </p>
         </div>

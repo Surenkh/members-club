@@ -49,7 +49,7 @@ export default function Leaderboard() {
   const handleBoostResult = (r) => {
     if (r.type === "xp") store.addXp(r.value);
     if (r.type === "xp" || r.type === "cash") {
-      setToast({ message: `${r.label} won`, action: { label: "View board", to: "/leaderboard" } });
+      setToast({ message: `${Array.isArray(r.label) ? r.label.join(" ") : r.label} won`, action: { label: "View board", to: "/leaderboard" } });
     }
   };
 
