@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { PLANS, planPrice, subscribe } from "../lib/membership";
+import { PLANS, planPrice, subscribe, getMembership, previewPlanChange, applyPlanChange } from "../lib/membership";
 import Modal from "../components/Modal";
 
 export default function Plans() {
@@ -9,12 +9,20 @@ export default function Plans() {
   const origin = location.state?.from || "/";
   const [period, setPeriod] = useState("monthly");
   const [plan, setPlan] = useState(null);
-  const [phase, setPhase] = useState("ready"); // ready | processing | failed | success
+  const [phase, setPhase] = useState("ready"); // ready | processing | failed | success | review
   const [record, setRecord] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const currentMember = getMembership();
+  const changing = currentMember.status === "active" && currentMember.plan && currentMember.plan !== (plan && plan.id);
 
   const startCheckout = (p) => {
     setPlan(p);
-    setPhase("ready");
+    if (currentMember.status === "active" && currentMember.plan && currentMember.plan !== p.id) {
+      setPreview(previewPlanChange(currentMember, p.id, period));
+      setPhase("review");
+    } else {
+      setPhase("ready");
+    }
   };
 
   const confirm = (simulateFail) => {
@@ -79,14 +87,46 @@ export default function Plans() {
               ))}
             </ul>
             <button onClick={() => startCheckout(p)} className="mt-3.5 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white active:scale-[0.98]">
-              Choose {p.name}
+              {currentMember.status === "active" && currentMember.plan === p.id ? "Current plan" : `Choose ${p.name}`}
             </button>
           </div>
         ))}
       </div>
 
       <Modal open={!!plan} onClose={() => (phase === "processing" ? null : setPlan(null))} labelledBy="checkout-title">
-        {plan && phase !== "success" && (
+        {plan && phase === "review" && preview && (
+          <div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-fg">{preview.kind === "upgrade" ? "Upgrade plan" : "Schedule plan change"}</h3>
+              <button onClick={() => setPlan(null)} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-faint">
+                <span className="ms">close</span>
+              </button>
+            </div>
+            <div className="mt-4 rounded-xl border border-hairline-soft bg-card p-4 text-[13px]">
+              <div className="flex justify-between"><span className="text-muted">Change to</span><span className="font-bold text-fg">{plan.name} · {period}</span></div>
+              <div className="mt-1.5 flex justify-between"><span className="text-muted">Amount due now</span><span className="font-bold tabular text-fg">${preview.amountDue} USD</span></div>
+              <div className="mt-1.5 flex justify-between"><span className="text-muted">Effective</span><span className="font-bold text-fg">{preview.effectiveDate}</span></div>
+            </div>
+            <p className="mt-2.5 text-[12px] leading-relaxed text-muted">{preview.note}</p>
+            <button
+              onClick={() => {
+                if (preview.kind === "upgrade") {
+                  applyPlanChange(plan.id, period, preview);
+                  setPhase("success");
+                  setRecord({ amount: preview.amountDue, period, ref: "MB-CHANGE" });
+                } else {
+                  applyPlanChange(plan.id, period, preview);
+                  setPlan(null);
+                  navigate(origin);
+                }
+              }}
+              className="mt-4 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white active:scale-[0.98]"
+            >
+              {preview.kind === "upgrade" ? `Confirm upgrade — $${preview.amountDue}` : "Schedule change"}
+            </button>
+          </div>
+        )}
+        {plan && phase !== "success" && phase !== "review" && (
           <div>
             <div className="flex items-center justify-between">
               <h3 id="checkout-title" className="text-lg font-bold text-fg">Checkout</h3>

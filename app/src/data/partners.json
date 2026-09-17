@@ -21,7 +21,13 @@
       "image": "/assets/part-netjets.jpg",
       "ctaLabel": "Claim Privilege",
       "claimed": false,
-      "passCode": "8841-T1-EXP"
+      "passCode": "8841-T1-EXP",
+      "usageType": "Single use",
+      "quota": { "claimed": 41, "total": 50 },
+      "spots": [
+        { "label": "Terminal 2 Private Desk", "x": 68, "y": 30 },
+        { "label": "Private Wing Lounge", "x": 78, "y": 62 }
+      ]
     },
     {
       "id": "verve",
@@ -34,7 +40,9 @@
       "image": "/assets/part-verve.jpg",
       "ctaLabel": "Claim Concession",
       "claimed": false,
-      "passCode": "7734-VERVE-EXP"
+      "passCode": "7734-VERVE-EXP",
+      "usageType": "Every visit",
+      "spots": [{ "label": "Flagship Roastery", "x": 34, "y": 55 }]
     },
     {
       "id": "chedi",
@@ -47,7 +55,9 @@
       "image": "/assets/part-chedi.jpg",
       "ctaLabel": "Claim Concession",
       "claimed": false,
-      "passCode": "6602-CHEDI-EXP"
+      "passCode": "6602-CHEDI-EXP",
+      "usageType": "Once per month",
+      "spots": [{ "label": "Alpine Resort Front Desk", "x": 22, "y": 24 }]
     },
     {
       "id": "bucherer",
@@ -60,7 +70,9 @@
       "image": "/assets/part-bucherer.jpg",
       "ctaLabel": "Claim Concession",
       "claimed": false,
-      "passCode": "5519-BUCH-EXP"
+      "passCode": "5519-BUCH-EXP",
+      "usageType": "Single use",
+      "spots": [{ "label": "Old Town Salon", "x": 52, "y": 44 }]
     }
   ],
   "howTo": [

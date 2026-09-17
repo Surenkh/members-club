@@ -100,6 +100,55 @@ export function planPrice(plan, period) {
   return period === "yearly" ? plan.yearly : plan.monthly;
 }
 
+const TIER_ORDER = ["pro", "platinum", "elite"];
+
+// Computes a plan change preview. Upgrades activate immediately with a mock
+// charge; downgrades and yearly-to-monthly moves schedule for paid-period end.
+export function previewPlanChange(current, planId, period) {
+  const plan = PLANS.find((p) => p.id === planId);
+  const toTier = TIER_ORDER.indexOf(planId);
+  const fromTier = TIER_ORDER.indexOf(current.plan);
+  const end = new Date();
+  end.setMonth(end.getMonth() + 1);
+  const effectiveDate = end.toISOString().slice(0, 10);
+  if (toTier > fromTier && period === current.period) {
+    return { kind: "upgrade", amountDue: planPrice(plan, period), effectiveDate: new Date().toISOString().slice(0, 10), note: "Activates immediately after mock payment." };
+  }
+  if (period === "yearly" && current.period === "monthly") {
+    const credit = 19;
+    return { kind: "upgrade", amountDue: Math.max(0, planPrice(plan, period) - credit), effectiveDate: new Date().toISOString().slice(0, 10), note: `Includes $${credit} unused-month credit (demo).` };
+  }
+  return { kind: "scheduled", amountDue: 0, effectiveDate, note: `Takes effect ${effectiveDate}. Present benefits stay until then.` };
+}
+
+export function applyPlanChange(planId, period, preview) {
+  const m = getMembership();
+  if (preview.kind === "upgrade") {
+    const history = store.billing;
+    history.push({
+      date: new Date().toISOString().slice(0, 10),
+      plan: PLANS.find((p) => p.id === planId).name,
+      period,
+      amount: preview.amountDue,
+      currency: "USD",
+      method: "Member Card ···· 9012",
+      status: "Paid",
+      ref: `MB-${String(Math.floor(100000 + Math.random() * 900000))}`,
+    });
+    store.setBilling(history);
+    setMembership({ ...m, status: "active", plan: planId, period, scheduledChange: null });
+  } else {
+    setMembership({ ...m, scheduledChange: { toPlan: planId, toPeriod: period, effectiveDate: preview.effectiveDate, amountDue: planPrice(PLANS.find((p) => p.id === planId), period) } });
+  }
+}
+
+export function cancelScheduledChange() {
+  const m = getMembership();
+  const next = { ...m };
+  delete next.scheduledChange;
+  setMembership(next);
+}
+
 export function statusMeta(status) {
   switch (status) {
     case "active":

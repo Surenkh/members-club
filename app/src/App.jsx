@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, useLocation, useNavigationType } from "re
 import BottomNav from "./components/BottomNav";
 import AppHeader from "./components/AppHeader";
 import StreaksModal from "./components/StreaksModal";
+import Onboarding from "./components/Onboarding";
 import { store } from "./lib/store";
 import Home from "./screens/Home";
 import Competitions from "./screens/Competitions";
@@ -45,9 +46,53 @@ function ScrollManager() {
   return null;
 }
 
+function Shell({ streaksOpen, closeStreaks, onboarded, finishOnboarding, openStreaks }) {
+  const location = useLocation();
+  return (
+    <div className="mx-auto min-h-[100dvh] max-w-md bg-ink">
+      <AppHeader onStreaks={openStreaks} />
+      <main className="page-enter pb-28" key={location.pathname}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/competitions" element={<Competitions />} />
+          <Route path="/competitions/:id" element={<CompetitionDetails />} />
+          <Route path="/partners" element={<Partners />} />
+          <Route path="/partners/:id" element={<ClaimQR />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/plans" element={<Plans />} />
+          <Route path="/spins" element={<Spins />} />
+          <Route path="/account/tickets" element={<Tickets />} />
+          <Route path="/account/discounts" element={<Discounts />} />
+          <Route path="/account/points" element={<Points />} />
+          <Route path="/account/details" element={<AccountDetails />} />
+          <Route path="/account/subscription" element={<Subscription />} />
+          <Route path="*" element={<Home />} />
+        </Routes>
+      </main>
+      <BottomNav />
+      <StreaksModal open={streaksOpen} onClose={closeStreaks} onClaim={(xp) => store.addXp(xp)} />
+      {!onboarded && <Onboarding onDone={finishOnboarding} />}
+    </div>
+  );
+}
+
 export default function App() {
   // Pop-up auto-opens at most once per day; always available via the header pill.
   const [streaksOpen, setStreaksOpen] = useState(() => !store.seenStreaksToday);
+  const [onboarded, setOnboarded] = useState(() => {
+    try {
+      return localStorage.getItem("member-onboarded") === "1";
+    } catch {
+      return true;
+    }
+  });
+  const finishOnboarding = () => {
+    try {
+      localStorage.setItem("member-onboarded", "1");
+    } catch {}
+    setOnboarded(true);
+  };
   const closeStreaks = () => {
     store.markStreaksSeen();
     setStreaksOpen(false);
@@ -56,30 +101,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollManager />
-      <div className="mx-auto min-h-[100dvh] max-w-md bg-ink">
-        <AppHeader onStreaks={() => setStreaksOpen(true)} />
-        <main className="pb-28">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/competitions" element={<Competitions />} />
-            <Route path="/competitions/:id" element={<CompetitionDetails />} />
-            <Route path="/partners" element={<Partners />} />
-            <Route path="/partners/:id" element={<ClaimQR />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/plans" element={<Plans />} />
-            <Route path="/spins" element={<Spins />} />
-            <Route path="/account/tickets" element={<Tickets />} />
-            <Route path="/account/discounts" element={<Discounts />} />
-            <Route path="/account/points" element={<Points />} />
-            <Route path="/account/details" element={<AccountDetails />} />
-            <Route path="/account/subscription" element={<Subscription />} />
-            <Route path="*" element={<Home />} />
-          </Routes>
-        </main>
-        <BottomNav />
-        <StreaksModal open={streaksOpen} onClose={closeStreaks} onClaim={(xp) => store.addXp(xp)} />
-      </div>
+      <Shell
+        streaksOpen={streaksOpen}
+        closeStreaks={closeStreaks}
+        onboarded={onboarded}
+        finishOnboarding={finishOnboarding}
+        openStreaks={() => setStreaksOpen(true)}
+      />
     </BrowserRouter>
   );
 }

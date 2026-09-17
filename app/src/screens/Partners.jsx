@@ -8,6 +8,7 @@ import Modal from "../components/Modal";
 import QRPass from "../components/QRPass";
 import Toast from "../components/Toast";
 import PaywallSheet from "../components/PaywallSheet";
+import PartnerMap from "../components/PartnerMap";
 import ImageWithSkeleton from "../components/ImageWithSkeleton";
 
 export default function Partners() {
@@ -29,6 +30,13 @@ export default function Partners() {
     }
   });
   const [searchOpen, setSearchOpen] = useState(false);
+  const [view, setView] = useState(() => {
+    try {
+      return sessionStorage.getItem("view:partners") || "list";
+    } catch {
+      return "list";
+    }
+  });
   const [detail, setDetail] = useState(null);
   const [claimed, setClaimed] = useState(() => store.claims);
   const [saved, setSaved] = useState(() => store.saved);
@@ -105,6 +113,24 @@ export default function Partners() {
         <Chip icon="workspace_premium" tone="violet">{partners.summary.tierScope}</Chip>
       </div>
 
+      {/* List / Map toggle */}
+      <div className="mt-3 flex rounded-xl border border-hairline bg-card p-1">
+        {[{ k: "list", icon: "view_list", t: "List" }, { k: "map", icon: "map", t: "Map" }].map((v) => (
+          <button
+            key={v.k}
+            onClick={() => {
+              setView(v.k);
+              try {
+                sessionStorage.setItem("view:partners", v.k);
+              } catch {}
+            }}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[12px] font-bold transition ${view === v.k ? "bg-cta text-white" : "text-muted"}`}
+          >
+            <span className="ms text-[16px]">{v.icon}</span> {v.t}
+          </button>
+        ))}
+      </div>
+
       {/* Category chips */}
       <div className="scroll-thin mt-2.5 flex gap-2 overflow-x-auto pb-1">
         {partners.categories.map((c) => (
@@ -120,7 +146,13 @@ export default function Partners() {
         ))}
       </div>
 
-      {/* Cards */}
+      {/* Cards or map */}
+      {view === "map" ? (
+        <div className="mt-4">
+          <PartnerMap items={list} onView={(p) => openClaim(p)} />
+          <p className="mt-2 text-center text-[11px] text-muted">Demo map. Browsing needs no subscription.</p>
+        </div>
+      ) : (
       <div className="mt-4 space-y-4">
         {list.map((p) => (
           <div key={p.id} className="overflow-hidden rounded-2xl border border-hairline bg-card">
@@ -142,6 +174,10 @@ export default function Partners() {
               <p className="text-[17px] font-bold leading-snug text-fg">{p.name}</p>
               <p className="mt-1 text-sm font-bold text-indigo-bright">{p.benefit}</p>
               <p className="mt-1 text-[12px] leading-relaxed text-muted">{p.detail}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {p.usageType && <span className="rounded-md bg-card-2 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-muted">{p.usageType}</span>}
+                {p.quota && <span className="rounded-md bg-card-2 px-2 py-1 text-[10px] font-bold tabular text-muted">{p.quota.claimed} of {p.quota.total} claimed</span>}
+              </div>
               <div className="mt-3.5 flex items-center gap-2.5">
                 {claimed.has(p.id) ? (
                   <Link to={`/partners/${p.id}`} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-teal py-3 text-sm font-bold uppercase tracking-wide text-pine active:scale-[0.98]">
@@ -170,6 +206,7 @@ export default function Partners() {
           </div>
         )}
       </div>
+      )}
 
       {/* Curated section */}
       <div className="mt-6 flex items-center justify-between">

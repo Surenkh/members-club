@@ -6,7 +6,9 @@ import { store } from "../lib/store";
 export default function Discounts() {
   const [tab, setTab] = useState("Active");
   const claimedIds = store.claims;
-  const active = partners.items.filter((p) => claimedIds.has(p.id));
+  const activations = store.activations;
+  const active = partners.items.filter((p) => claimedIds.has(p.id) && (activations[p.id]?.state || "ready") === "ready");
+  const redeemed = partners.items.filter((p) => claimedIds.has(p.id) && activations[p.id]?.state === "redeemed");
   // History: static demo records plus any expired mock entry.
   const history = [
     { id: "h1", name: "Atelier Mercer · $75 Tailoring Credit", meta: "Used on Sep 2, 2026 · Single use", state: "Used" },
@@ -48,6 +50,13 @@ export default function Discounts() {
             </div>
             <span className="ms text-faint">chevron_right</span>
           </Link>
+        ))}
+        {tab === "History" && redeemed.map((p) => (
+          <div key={p.id} className="rounded-2xl border border-hairline-soft bg-card p-4 opacity-80">
+            <p className="text-sm font-bold text-fg">{p.name}</p>
+            <p className="mt-0.5 text-[11px] text-muted">Used on {activations[p.id]?.usedOn || "recorded date"} · QR confirmed</p>
+            <span className="mt-2 inline-block rounded-md bg-card-2 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-muted">Redeemed</span>
+          </div>
         ))}
         {tab === "History" && history.map((h) => (
           <div key={h.id} className="rounded-2xl border border-hairline-soft bg-card p-4 opacity-80">

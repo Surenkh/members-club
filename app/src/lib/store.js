@@ -93,4 +93,13 @@ export const store = {
   setProfile(p) {
     set("member-profile", p);
   },
+  get activations() {
+    return get("member-activations", {});
+  },
+  setActivation(id, rec) {
+    const a = this.activations;
+    a[id] = rec;
+    set("member-activations", a);
+    return a;
+  },
 };

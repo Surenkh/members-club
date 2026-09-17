@@ -4,13 +4,19 @@ import partners from "../data/partners.json";
 import Chip from "../components/Chip";
 import QRPass from "../components/QRPass";
 import Toast from "../components/Toast";
+import { store } from "../lib/store";
+
+const VERIFY_STATES = ["Valid", "Redeemed", "Expired", "Invalid"];
 
 export default function ClaimQR() {
   const { id } = useParams();
   const p = partners.items.find((x) => x.id === id) || partners.items[0];
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState("");
+  const [preview, setPreview] = useState("Valid");
+  const [, bump] = useState(0);
   const passCode = p.passCode || "MB-" + p.id.toUpperCase() + "-8841";
+  const activation = store.activations[p.id] || { state: "ready", usedOn: null };
 
   const copy = async () => {
     try {
@@ -64,7 +70,48 @@ export default function ClaimQR() {
           <button onClick={() => setToast("Pass saved to wallet (demo)")} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-sm font-bold text-black active:scale-[0.98]">
             <span className="ms">account_balance_wallet</span> Add to Apple Wallet
           </button>
+
+          {activation.state === "redeemed" ? (
+            <p className="mt-3 rounded-xl border border-hairline-soft bg-card-2 px-4 py-3 text-center text-[12px] font-bold text-muted">
+              Redeemed{activation.usedOn ? ` · Used on ${activation.usedOn}` : ""}. This activation is read-only.
+            </p>
+          ) : null}
         </div>
+      </div>
+
+      {/* Demo verification preview (presenter tool, not a customer control) */}
+      <div className="mx-4 mt-4 rounded-2xl border border-dashed border-hairline bg-card p-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted">Demo · verification preview</p>
+        <div className="mt-2.5 flex gap-1.5">
+          {VERIFY_STATES.map((s) => (
+            <button
+              key={s}
+              onClick={() => setPreview(s)}
+              className={`flex-1 rounded-lg border px-1 py-2 text-[11px] font-bold transition ${preview === s ? "border-transparent bg-cta text-white" : "border-hairline bg-card-2 text-muted"}`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2.5 text-[12px] text-muted">
+          {preview === "Valid" && "Staff scan would accept this pass."}
+          {preview === "Redeemed" && "Staff scan would reject it as already redeemed."}
+          {preview === "Expired" && "Staff scan would reject it as expired."}
+          {preview === "Invalid" && "Staff scan would reject it as invalid."}
+        </p>
+        {preview === "Valid" && activation.state !== "redeemed" && (
+          <button
+            onClick={() => {
+              const today = new Date().toISOString().slice(0, 10);
+              store.setActivation(p.id, { state: "redeemed", usedOn: today, method: "QR" });
+              bump((v) => v + 1);
+              setToast("Partner confirmed redemption");
+            }}
+            className="mt-3 w-full rounded-xl border border-hairline bg-card-2 py-3 text-[13px] font-bold text-fg active:scale-[0.98]"
+          >
+            Confirm partner redemption (demo)
+          </button>
+        )}
       </div>
 
       <Toast message={toast} open={!!toast} onDone={() => setToast("")} />
