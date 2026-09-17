@@ -110,7 +110,7 @@ export default function Plans() {
               onClick={() => confirm(false)}
               className="mt-4 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white active:scale-[0.98] disabled:opacity-60"
             >
-              {phase === "processing" ? "Processing..." : phase === "failed" ? "Retry — Subscribe" : `Subscribe — $${amount}`}
+              {phase === "processing" ? "Processing..." : phase === "failed" ? "Retry: Subscribe" : `Subscribe: $${amount}`}
             </button>
             {phase !== "processing" && (
               <button onClick={() => confirm(true)} className="mt-2 w-full py-1 text-[11px] font-semibold text-faint">

@@ -154,7 +154,7 @@ export default function StreaksModal({ open, onClose, onClaim }) {
       {previewOnly ? (
         <div className="mt-4">
           <p className="rounded-xl border border-hairline-soft bg-card px-4 py-3 text-[12px] leading-relaxed text-muted">
-            Daily streaks reward members with XP and a Day 7 finale. This is a preview — nothing is collected.
+            Daily streaks reward members with XP and a Day 7 finale. This is a preview. Nothing is collected.
           </p>
           <Link to="/plans" onClick={onClose} className="mt-3 block rounded-xl bg-cta py-3.5 text-center text-sm font-bold text-white active:scale-[0.98]">
             View plans

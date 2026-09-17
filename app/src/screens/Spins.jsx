@@ -68,7 +68,7 @@ export default function Spins() {
           <div className="flex flex-col items-center py-4 text-center opacity-90">
             <SpinWheel gated hideButton onGate={() => setPaywall(true)} onResult={() => {}} />
             <button onClick={() => setPaywall(true)} className="mt-4 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white">
-              Spin — members only
+              Spin (members only)
             </button>
           </div>
         )}
