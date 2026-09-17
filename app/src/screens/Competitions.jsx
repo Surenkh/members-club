@@ -6,6 +6,7 @@ import { CountdownChip } from "../components/Countdown";
 import { drawTarget } from "../lib/draw";
 import Modal from "../components/Modal";
 import ImageWithSkeleton from "../components/ImageWithSkeleton";
+import { getMembership } from "../lib/membership";
 
 export default function Competitions() {
   const [f, setF] = useState(() => {
@@ -32,7 +33,8 @@ export default function Competitions() {
     if (f === "all") return true;
     return c.status === f;
   });
-
+  const memberState = getMembership();
+  const subscribed = memberState.status === "active" || memberState.status === "cancelled";
   return (
     <div className="px-4 pt-2 pb-4">
       <div className="flex items-center gap-3">
@@ -110,7 +112,7 @@ export default function Competitions() {
                 <div className="p-4">
                   <p className="text-[15px] font-bold text-fg">{c.title}{c.titleSuffix ? ` ${c.titleSuffix}` : ""}</p>
                   <p className="mt-0.5 text-xs leading-relaxed text-muted">{c.subtitle}</p>
-                  {c.autoAllocated ? (
+                  {subscribed && c.autoAllocated ? (
                     <div className="mt-3 space-y-1.5">
                       <div className="flex items-center justify-between rounded-xl border border-hairline-soft bg-card-2 px-3.5 py-2.5">
                         <span className="flex items-center gap-1.5 text-[12px] font-semibold text-muted">
@@ -126,11 +128,17 @@ export default function Competitions() {
                       )}
                     </div>
                   ) : null}
-                  {c.autoEntries ? (
+                  {subscribed && c.autoEntries ? (
                     <div className="mt-3 flex items-center justify-between rounded-xl border border-hairline-soft bg-card-2 px-3.5 py-2.5">
                       <span className="text-[12px] font-semibold text-muted">Entry Status</span>
                       <span className="text-[12px] font-bold tabular text-fg">{c.yourEntries} Entries Active</span>
                     </div>
+                  ) : null}
+                  {!subscribed && c.status !== "ended" ? (
+                    <Link to="/plans" state={{ from: "/competitions" }} className="mt-3 flex items-center justify-between rounded-xl border border-violet/40 bg-violet-soft px-3.5 py-2.5 active:scale-[0.99]">
+                      <span className="text-[12px] font-semibold text-muted">Member entries live here</span>
+                      <span className="text-[12px] font-bold text-indigo-bright">View plans</span>
+                    </Link>
                   ) : null}
                   <Link to={`/competitions/${c.id}`} className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-cta py-3 text-sm font-bold text-white active:scale-[0.98]">
                     {c.cta === "View Competition" ? null : <span className="ms text-[18px]">add_circle</span>}

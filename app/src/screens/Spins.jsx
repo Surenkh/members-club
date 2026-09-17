@@ -28,6 +28,7 @@ export default function Spins() {
   const ss = String(Math.floor((left % 60000) / 1000)).padStart(2, "0");
 
   const onResult = (r) => {
+    if (!active) return;
     if (r.type === "xp") store.addXp(r.value);
     if (r.type === "cash") store.addPoints(r.value);
     store.setLastSpin({ label: Array.isArray(r.label) ? r.label.join(" ") : r.label, type: r.type, value: r.value || 0 });
@@ -62,14 +63,12 @@ export default function Spins() {
               {store.lastSpin && <p className="mt-1 text-[11px] text-muted">Last result: {store.lastSpin.result?.label}</p>}
             </div>
           ) : (
-            <SpinWheel gated={!active} onGate={() => setPaywall(true)} onResult={onResult} />
+            <SpinWheel onResult={onResult} />
           )
         ) : (
-          <div className="flex flex-col items-center py-4 text-center opacity-90">
-            <SpinWheel gated hideButton onGate={() => setPaywall(true)} onResult={() => {}} />
-            <button onClick={() => setPaywall(true)} className="mt-4 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white">
-              Spin (members only)
-            </button>
+          <div className="flex flex-col items-center py-4 text-center">
+            <SpinWheel claimAction={() => setPaywall(true)} onResult={() => {}} />
+            <p className="mt-3 max-w-[260px] text-[12px] text-muted">Spin to reveal a prize, then claim it as a member.</p>
           </div>
         )}
       </div>

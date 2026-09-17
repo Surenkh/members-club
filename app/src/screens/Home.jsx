@@ -4,7 +4,6 @@ import member from "../data/member.json";
 import competitions from "../data/competitions.json";
 import partners from "../data/partners.json";
 import lb from "../data/leaderboard.json";
-import streaks from "../data/streaks.json";
 import { store } from "../lib/store";
 import { getMembership } from "../lib/membership";
 import PaywallSheet from "../components/PaywallSheet";
@@ -15,14 +14,29 @@ import { CountdownChip } from "../components/Countdown";
 import ImageWithSkeleton from "../components/ImageWithSkeleton";
 import { drawTarget } from "../lib/draw";
 
-function AllocationPanel({ xpBonus }) {
+function AllocationPanel({ xpBonus, subscribed }) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("Entries");
-  const rows = [
-    { name: "Porsche 911 GT3 RS", entries: 8, tag: "(Tier One)" },
-    { name: "Rolex Submariner + Leica", entries: 5, tag: null },
-    { name: "Carlton St. Moritz Escape", entries: 2, tag: null },
-  ];
+  const rows = competitions.items
+    .filter((c) => c.autoAllocated)
+    .map((c) => ({ id: c.id, name: c.detailsTitle || c.title, entries: c.autoAllocated, tag: c.id === "porsche-911" ? "(Tier One)" : null }));
+
+  if (!subscribed) {
+    return (
+      <div className="mt-4 rounded-2xl border border-violet/40 bg-violet-soft p-4">
+        <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-violet-pale">
+          <span className="ms text-[16px]">analytics</span> Member Allocation
+        </p>
+        <p className="mt-2 text-sm font-bold text-fg">Automatic entries live here</p>
+        <p className="mt-1 text-[12px] leading-relaxed text-muted">Subscribe to see your monthly pool, per-draw allocations, and level progress.</p>
+        <button onClick={() => navigate("/plans", { state: { from: "/" } })} className="mt-3 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white active:scale-[0.98]">
+          View plans
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-4 rounded-2xl border border-hairline bg-card p-4">
       <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between" aria-expanded={open}>
@@ -42,7 +56,7 @@ function AllocationPanel({ xpBonus }) {
       {open && (
         <div className="mt-3 border-t border-hairline-soft pt-3">
           <div className="flex rounded-lg border border-hairline-soft bg-card-2 p-0.5">
-            {["Entries", "XP & Level", "Perks (3)"].map((t) => (
+            {["Entries", "XP & Level"].map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
@@ -57,10 +71,11 @@ function AllocationPanel({ xpBonus }) {
               <p className="text-[11px] font-semibold text-muted">Allocated Monthly Pool {member.entriesPlaced} / {member.entries} Placed</p>
               <div className="mt-2 space-y-1.5">
                 {rows.map((r) => (
-                  <div key={r.name} className="flex items-center justify-between rounded-lg bg-card-2 px-3 py-2">
-                    <span className="truncate text-[12px] font-semibold text-fg">{r.name} {r.tag && <span className="text-muted">{r.tag}</span>}</span>
-                    <span className="ml-2 shrink-0 text-[12px] font-bold tabular text-fg">{r.entries} Entries</span>
-                  </div>
+                  <Link key={r.id} to={`/competitions/${r.id}`} className="flex items-center justify-between gap-2 rounded-lg bg-card-2 px-3 py-2 active:scale-[0.99]">
+                    <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-fg">{r.name} {r.tag && <span className="text-muted">{r.tag}</span>}</span>
+                    <CountdownChip to={drawTarget(r.id)} />
+                    <span className="shrink-0 text-[12px] font-bold tabular text-fg">{r.entries} Entries</span>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -79,27 +94,13 @@ function AllocationPanel({ xpBonus }) {
               </p>
             </div>
           )}
-          {tab === "Perks (3)" && (
-            <div className="mt-3 space-y-1.5">
-              {streaks.wallet.map((w) => (
-                <div key={w.name} className="flex items-center gap-2.5 rounded-lg bg-card-2 p-2">
-                  <span className="ms text-muted">{w.icon}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[12px] font-semibold text-fg">{w.name}</p>
-                    {w.meta ? <p className="text-[10px] text-muted">{w.meta}</p> : null}
-                  </div>
-                  <span className="shrink-0 rounded-md bg-indigo-soft px-2 py-1 text-[10px] font-bold text-indigo-bright">{w.cta}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </div>
   );
 }
 
-function VaultHero({ c }) {
+function VaultHero({ c, subscribed }) {
   return (
     <div className="mt-4 overflow-hidden rounded-2xl border border-hairline bg-card">
       <div className="relative">
@@ -121,16 +122,25 @@ function VaultHero({ c }) {
         </div>
       </div>
       <div className="p-4">
-        <div className="flex items-center justify-between rounded-xl border border-hairline-soft bg-card-2 px-3.5 py-2.5">
-          <span className="flex items-center gap-1.5 text-[12px] font-semibold text-muted">
-            <span className="ms text-[16px]">settings</span> Your Current Entries
-          </span>
-          <span className="text-[12px] font-bold tabular text-fg">{c.yourEntries} Auto-Allocated</span>
-        </div>
-        <div className="mt-2 flex items-center justify-between px-1 text-[11px] text-muted">
-          <span>Tier Multiplier: <span className="font-bold text-teal-pale">{c.multiplier} Boost Active</span></span>
-          <span>Draw Odds: <span className="font-bold tabular text-fg">1 in {c.odds.split(" ").pop()}</span></span>
-        </div>
+        {subscribed ? (
+          <>
+            <div className="flex items-center justify-between rounded-xl border border-hairline-soft bg-card-2 px-3.5 py-2.5">
+              <span className="flex items-center gap-1.5 text-[12px] font-semibold text-muted">
+                <span className="ms text-[16px]">settings</span> Your Current Entries
+              </span>
+              <span className="text-[12px] font-bold tabular text-fg">{c.yourEntries} Auto-Allocated</span>
+            </div>
+            <div className="mt-2 flex items-center justify-between px-1 text-[11px] text-muted">
+              <span>Tier Multiplier: <span className="font-bold text-teal-pale">{c.multiplier} Boost Active</span></span>
+              <span>Draw Odds: <span className="font-bold tabular text-fg">1 in {c.odds.split(" ").pop()}</span></span>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-between rounded-xl border border-violet/40 bg-violet-soft px-3.5 py-2.5">
+            <span className="text-[12px] font-semibold text-muted">Members get automatic entries here</span>
+            <Link to="/plans" state={{ from: "/" }} className="shrink-0 rounded-lg bg-cta px-3 py-1.5 text-[11px] font-bold text-white">View plans</Link>
+          </div>
+        )}
         <Link to={`/competitions/${c.id}`} className="mt-3 block rounded-xl bg-cta py-3 text-center text-sm font-bold text-white active:scale-[0.98]">
           Add more entries
         </Link>
@@ -145,7 +155,8 @@ export default function Home() {
   const [paywall, setPaywall] = useState(false);
   const [xpBonus, setXpBonus] = useState(store.xpBonus);
   const memberState = getMembership();
-  const canSpin = memberState.status === "active" || memberState.status === "cancelled";
+  const subscribed = memberState.status === "active" || memberState.status === "cancelled";
+  const canSpin = subscribed;
   const spinUsed = store.spunToday();
   const vault = competitions.items[0];
   const activeCards = competitions.items.filter((c) => c.status !== "ended").slice(0, 4);
@@ -153,6 +164,7 @@ export default function Home() {
   const rows = lb.weekly.slice(3, 8);
 
   const onWheelResult = (r) => {
+    if (!canSpin) return;
     if (r.type === "xp") setXpBonus(store.addXp(r.value));
     if (r.type === "cash") store.addPoints(r.value);
     store.setLastSpin({ label: Array.isArray(r.label) ? r.label.join(" ") : r.label, type: r.type, value: r.value || 0 });
@@ -161,8 +173,8 @@ export default function Home() {
 
   return (
     <div className="px-4 pt-2 pb-4">
-      <AllocationPanel xpBonus={xpBonus} />
-      <VaultHero c={vault} />
+      <AllocationPanel xpBonus={xpBonus} subscribed={subscribed} />
+      <VaultHero c={vault} subscribed={subscribed} />
 
       {/* Competitions preview */}
       <section id="competitionsSection" className="mt-6">
@@ -251,14 +263,14 @@ export default function Home() {
           <p className="mt-1 max-w-[260px] text-[12px] leading-relaxed text-muted">Every daily spin grants verifiable XP, cash perks, or free re-spins.</p>
         </div>
         <div className="mt-4">
-          {spinUsed ? (
+          {spinUsed && canSpin ? (
             <div className="flex flex-col items-center rounded-2xl border border-hairline bg-card p-5 text-center">
               <span className="ms fill text-[26px] text-teal-pale">check_circle</span>
               <p className="mt-2 text-sm font-bold text-fg">Today&apos;s spin is used</p>
               <Link to="/spins" className="mt-1 text-[12px] font-bold text-indigo-bright">Open Spins for the countdown</Link>
             </div>
           ) : (
-            <SpinWheel gated={!canSpin} onGate={() => setPaywall(true)} onResult={onWheelResult} />
+            <SpinWheel claimAction={!canSpin ? () => setPaywall(true) : undefined} onResult={onWheelResult} />
           )}
         </div>
       </section>

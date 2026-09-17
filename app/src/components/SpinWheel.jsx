@@ -24,7 +24,7 @@ const ICON_FILL = { bolt: "#e9d5ff", paid: "#ffd75e", close: "#f1f2f6", refresh:
 
 const SIZE = 320;
 
-export default function SpinWheel({ onResult, gated, onGate, hideButton }) {
+export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAction }) {
   const [rot, setRot] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
@@ -247,16 +247,23 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton }) {
       </button>
 
       {result && (
-        <div className="mt-3 flex w-full items-center gap-3 rounded-xl border border-gold/40 bg-gold/10 px-4 py-3">
-          <span className="ms fill text-[24px] text-gold">
-            {result.type === "xp" ? "military_tech" : result.type === "cash" ? "payments" : result.type === "retry" ? "refresh" : "info"}
-          </span>
+        <div className="mt-3 w-full rounded-xl border border-gold/40 bg-gold/10 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span className="ms fill text-[24px] text-gold">
+              {result.type === "xp" ? "military_tech" : result.type === "cash" ? "payments" : result.type === "retry" ? "refresh" : "info"}
+            </span>
           <p className="text-sm font-bold text-fg">
-            {result.type === "xp" && <>+{result.value} XP added to your balance</>}
-            {result.type === "cash" && <>${result.value} WIN · CASH added to your balance</>}
-            {result.type === "retry" && <>One more spin earned</>}
+            {result.type === "xp" && <>+{result.value} XP{claimAction ? "" : " added to your balance"}</>}
+            {result.type === "cash" && <>${result.value} WIN · CASH{claimAction ? "" : " added to your balance"}</>}
+            {result.type === "retry" && <>One more spin</>}
             {result.type === "none" && <>No win this time</>}
           </p>
+          </div>
+          {claimAction && (result.type === "xp" || result.type === "cash") && (
+            <button onClick={() => claimAction(result)} className="mt-3 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white active:scale-[0.98]">
+              Claim prize
+            </button>
+          )}
         </div>
       )}
     </div>

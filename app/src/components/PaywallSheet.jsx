@@ -13,6 +13,10 @@ const COPY = {
     title: "Daily Spin is for members",
     body: "One free spin every day comes with membership. View plans to start spinning.",
   },
+  streaks: {
+    title: "Daily streaks are for members",
+    body: "Open the streak every day to collect XP and reach the Day 7 finale. View plans to start your streak.",
+  },
   default: {
     title: "A member benefit",
     body: "This action needs an active membership. View plans to unlock it.",

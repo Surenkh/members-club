@@ -12,11 +12,13 @@ export default function Plans() {
   const [phase, setPhase] = useState("ready"); // ready | processing | failed | success | review
   const [record, setRecord] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [method, setMethod] = useState("card");
   const currentMember = getMembership();
   const changing = currentMember.status === "active" && currentMember.plan && currentMember.plan !== (plan && plan.id);
 
   const startCheckout = (p) => {
     setPlan(p);
+    setMethod("card");
     if (currentMember.status === "active" && currentMember.plan && currentMember.plan !== p.id) {
       setPreview(previewPlanChange(currentMember, p.id, period));
       setPhase("review");
@@ -25,6 +27,8 @@ export default function Plans() {
     }
   };
 
+  const METHOD_LABELS = { card: "Member Card ···· 9012", google: "Google Pay", apple: "Apple Pay" };
+
   const confirm = (simulateFail) => {
     setPhase("processing");
     setTimeout(() => {
@@ -32,7 +36,7 @@ export default function Plans() {
         setPhase("failed");
         return;
       }
-      const rec = subscribe(plan.id, period);
+      const rec = subscribe(plan.id, period, METHOD_LABELS[method]);
       setRecord(rec);
       setPhase("success");
     }, 1300);
@@ -122,7 +126,7 @@ export default function Plans() {
               }}
               className="mt-4 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white active:scale-[0.98]"
             >
-              {preview.kind === "upgrade" ? `Confirm upgrade — $${preview.amountDue}` : "Schedule change"}
+              {preview.kind === "upgrade" ? `Confirm upgrade: $${preview.amountDue}` : "Schedule change"}
             </button>
           </div>
         )}
@@ -138,7 +142,28 @@ export default function Plans() {
               <div className="flex justify-between"><span className="text-muted">Plan</span><span className="font-bold text-fg">{plan.name} · {period}</span></div>
               <div className="mt-1.5 flex justify-between"><span className="text-muted">Amount due now</span><span className="font-bold tabular text-fg">${amount} USD</span></div>
               <div className="mt-1.5 flex justify-between"><span className="text-muted">Renews</span><span className="font-bold text-fg">{period === "yearly" ? "Yearly" : "Monthly"}</span></div>
-              <div className="mt-1.5 flex justify-between"><span className="text-muted">Method</span><span className="font-bold text-fg">Member Card ···· 9012</span></div>
+            </div>
+            <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.16em] text-muted">Payment method</p>
+            <div className="mt-2 space-y-2">
+              {[
+                ["card", "credit_card", "Member Card ···· 9012"],
+                ["google", "payments", "Google Pay"],
+                ["apple", "file_download", "Apple Pay"],
+              ].map(([k, icon, label]) => (
+                <button
+                  key={k}
+                  onClick={() => setMethod(k)}
+                  className={`flex w-full items-center gap-2.5 rounded-xl border px-3.5 py-3 text-left transition active:scale-[0.99] ${
+                    method === k ? "border-indigo-bright bg-indigo-soft" : "border-hairline bg-card"
+                  }`}
+                >
+                  <span className="ms text-[19px] text-fg">{icon}</span>
+                  <span className="flex-1 text-[13px] font-bold text-fg">{label}</span>
+                  <span className={`flex h-5 w-5 items-center justify-center rounded-full border ${method === k ? "border-indigo-bright bg-indigo" : "border-hairline"}`}>
+                    {method === k && <span className="ms text-[13px] text-white">check</span>}
+                  </span>
+                </button>
+              ))}
             </div>
             {phase === "failed" && (
               <p className="mt-3 rounded-xl border border-red-400/40 bg-red-400/10 px-4 py-3 text-[12px] font-semibold text-red-300">

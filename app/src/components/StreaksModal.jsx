@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import data from "../data/streaks.json";
 import Modal from "./Modal";
 import Toast from "./Toast";
+import PaywallSheet from "./PaywallSheet";
 import { getMembership } from "../lib/membership";
 
 const LS_KEY = "member-streak";
@@ -14,6 +15,7 @@ function DayIcon({ state }) {
 }
 
 export default function StreaksModal({ open, onClose, onClaim }) {
+  const navigate = useNavigate();
   const [claimedToday, setClaimedToday] = useState(() => {
     try {
       const s = JSON.parse(localStorage.getItem(LS_KEY));
@@ -22,12 +24,27 @@ export default function StreaksModal({ open, onClose, onClaim }) {
       return false;
     }
   });
-  const [freshReset, setFreshReset] = useState(false);
-  const [toast, setToast] = useState("");
-  const collectedRef = useRef(false);
-  const memberState = getMembership();
-  const collectible = memberState.status === "active" || memberState.status === "cancelled";
-  const previewOnly = !collectible;
+  // Fresh profile (no streak history at mount) stays on the Day-1 view even
+  // after collecting, so progress never jumps to the returning-user mock.
+  const freshRef = useRef(null);
+  if (freshRef.current === null) {
+    let seen = true;
+    try {
+      seen = localStorage.getItem(LS_KEY) !== null;
+    } catch {}
+    freshRef.current = !seen;
+  }
+  const fresh = freshRef.current;
+  const days = fresh
+    ? data.days.map((d, i) => ({
+        ...d,
+        state: i === 0 ? "ready" : "locked",
+        in: i === 0 ? undefined : `In ${i}D`,
+      }))
+    : data.days;
+  const dayLabel = fresh ? 1 : data.dayOfWeek;
+  const claimedLabel = fresh ? (claimedToday ? 1 : 0) : data.claimedCount + (claimedToday ? 1 : 0);
+  const finaleLeft = fresh ? (claimedToday ? 5 : 6) : data.finale.daysLeft;
 
   const collect = () => {
     setClaimedToday(true);
@@ -35,6 +52,13 @@ export default function StreaksModal({ open, onClose, onClaim }) {
     setToast(`+${data.claimXp} XP claimed`);
     onClaim?.(data.claimXp);
   };
+  const [freshReset, setFreshReset] = useState(false);
+  const [toast, setToast] = useState("");
+  const [paywall, setPaywall] = useState(false);
+  const collectedRef = useRef(false);
+  const memberState = getMembership();
+  const collectible = memberState.status === "active" || memberState.status === "cancelled";
+  const previewOnly = !collectible;
 
   // Eligible members collect automatically on open. No second Claim button.
   // A missed day restarts the seven-day sequence (demo rule, see spec notes).
@@ -60,8 +84,7 @@ export default function StreaksModal({ open, onClose, onClaim }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open ]);
 
-  const day = data.dayOfWeek;
-  const claimedCount = data.claimedCount + (claimedToday ? 1 : 0);
+  // Progress labels derive from fresh/progress view above.
 
   return (
     <Modal open={open} onClose={onClose} labelledBy="streaks-title">
@@ -81,13 +104,13 @@ export default function StreaksModal({ open, onClose, onClaim }) {
 
       {/* Progress */}
       <div className="mt-4 flex items-center justify-between rounded-2xl border border-hairline bg-card p-4">
-        <p className="text-sm font-bold text-fg">Day {day + (claimedToday ? 1 : 0)} of 7</p>
-        <p className="text-[11px] font-bold text-teal-pale">{claimedCount} Days Claimed</p>
+        <p className="text-sm font-bold text-fg">Day {dayLabel + (claimedToday && !fresh ? 1 : 0)} of 7</p>
+        <p className="text-[11px] font-bold text-teal-pale">{claimedLabel === 1 ? "1 Day Claimed" : `${claimedLabel} Days Claimed`}</p>
       </div>
       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-hairline-soft">
         <div
           className="h-full rounded-full bg-gradient-to-r from-indigo to-violet"
-          style={{ width: `${(claimedCount / 7) * 100}%` }}
+          style={{ width: `${(claimedLabel / 7) * 100}%` }}
         />
       </div>
 
@@ -95,7 +118,7 @@ export default function StreaksModal({ open, onClose, onClaim }) {
 
       {/* Day grid */}
       <div className="mt-2.5 grid grid-cols-3 gap-2">
-        {data.days.map((d) => {
+        {days.map((d) => {
           const isReady = d.state === "ready" && !claimedToday;
           const isClaimed = d.state === "claimed" || (d.state === "ready" && claimedToday);
           return (
@@ -125,7 +148,7 @@ export default function StreaksModal({ open, onClose, onClaim }) {
               <span className="ms text-[13px]">military_tech</span> {data.finale.label}
             </span>
             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-muted">
-              <span className="ms text-[13px]">lock</span> {data.finale.daysLeft} Days Left
+              <span className="ms text-[13px]">lock</span> {finaleLeft} Days Left
             </span>
           </div>
           <div className="mt-3 flex items-center justify-between">
@@ -156,9 +179,10 @@ export default function StreaksModal({ open, onClose, onClaim }) {
           <p className="rounded-xl border border-hairline-soft bg-card px-4 py-3 text-[12px] leading-relaxed text-muted">
             Daily streaks reward members with XP and a Day 7 finale. This is a preview. Nothing is collected.
           </p>
-          <Link to="/plans" onClick={onClose} className="mt-3 block rounded-xl bg-cta py-3.5 text-center text-sm font-bold text-white active:scale-[0.98]">
-            View plans
-          </Link>
+          <button onClick={() => setPaywall(true)} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-cta py-3.5 text-sm font-bold uppercase tracking-wide text-white active:scale-[0.98]">
+            <span className="ms text-[19px]">local_fire_department</span> Claim today&apos;s reward
+          </button>
+          <Link to="/plans" onClick={onClose} className="mt-2 block text-center text-[12px] font-bold text-indigo-bright">View plans</Link>
         </div>
       ) : claimedToday ? (
         <p className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-teal/40 bg-teal-soft py-3.5 text-sm font-bold text-teal-pale">
@@ -171,6 +195,16 @@ export default function StreaksModal({ open, onClose, onClaim }) {
       </p>
 
       <Toast message={toast} open={!!toast} onDone={() => setToast("")} />
+      <PaywallSheet
+        open={paywall}
+        onClose={() => setPaywall(false)}
+        onPlans={() => {
+          setPaywall(false);
+          onClose();
+          navigate("/plans", { state: { from: "/" } });
+        }}
+        reason="streaks"
+      />
     </Modal>
   );
 }

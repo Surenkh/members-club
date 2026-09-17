@@ -15,8 +15,8 @@ export const PLANS = [
     perks: ["8 automatic entries per draw", "Daily spin", "Essential partner perks"],
   },
   {
-    id: "platinum",
-    name: "Platinum",
+    id: "premium",
+    name: "Premium",
     icon: "workspace_premium",
     monthly: 39,
     yearly: 390,
@@ -26,14 +26,14 @@ export const PLANS = [
     recommended: true,
   },
   {
-    id: "elite",
-    name: "Elite",
+    id: "diamond",
+    name: "Diamond",
     icon: "crown",
     monthly: 79,
     yearly: 790,
     blurb: "Top pools, concierge access, first refusal.",
     entries: 30,
-    perks: ["30 automatic entries per draw", "Everything in Platinum", "Concierge access", "First refusal on allocations"],
+    perks: ["30 automatic entries per draw", "Everything in Premium", "Concierge access", "First refusal on allocations"],
   },
 ];
 
@@ -59,7 +59,7 @@ export function useMembershipTick() {
   return () => window.dispatchEvent(new CustomEvent("membership-changed"));
 }
 
-export function subscribe(planId, period) {
+export function subscribe(planId, period, methodLabel) {
   const plan = PLANS.find((p) => p.id === planId);
   const now = new Date();
   const renewal = new Date(now);
@@ -72,7 +72,7 @@ export function subscribe(planId, period) {
     period,
     amount,
     currency: "USD",
-    method: "Member Card ···· 9012",
+    method: methodLabel || "Member Card ···· 9012",
     status: "Paid",
     ref: `MB-${String(Math.floor(100000 + Math.random() * 900000))}`,
   };
@@ -100,7 +100,7 @@ export function planPrice(plan, period) {
   return period === "yearly" ? plan.yearly : plan.monthly;
 }
 
-const TIER_ORDER = ["pro", "platinum", "elite"];
+const TIER_ORDER = ["pro", "premium", "diamond"];
 
 // Computes a plan change preview. Upgrades activate immediately with a mock
 // charge; downgrades and yearly-to-monthly moves schedule for paid-period end.

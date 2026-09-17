@@ -120,6 +120,7 @@ export default function CompetitionDetails() {
         </div>
 
         {/* Your entries */}
+        {eligible ? (
         <div className="mt-3 rounded-2xl border border-hairline bg-card p-4">
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
@@ -160,6 +161,14 @@ export default function CompetitionDetails() {
             </div>
           )}
         </div>
+        ) : (
+        <div className="mt-3 flex items-center justify-between rounded-2xl border border-violet/40 bg-violet-soft px-4 py-3.5">
+          <span className="flex items-center gap-1.5 text-[12px] font-semibold text-muted">
+            <span className="ms text-[16px]">confirmation_number</span> Member entries live here
+          </span>
+          <Link to="/plans" state={{ from: `/competitions/${c.id}` }} className="shrink-0 rounded-lg bg-cta px-3 py-1.5 text-[11px] font-bold text-white">View plans</Link>
+        </div>
+        )}
 
         {/* Bundles */}
         {c.bundles.length > 0 && (
