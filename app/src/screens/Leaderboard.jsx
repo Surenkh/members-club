@@ -3,6 +3,7 @@ import lb from "../data/leaderboard.json";
 import Modal from "../components/Modal";
 import SpinWheel from "../components/SpinWheel";
 import Toast from "../components/Toast";
+import { store } from "../lib/store";
 
 const PERIODS = ["Weekly", "Monthly", "All-Time"];
 const key = { Weekly: "weekly", Monthly: "monthly", "All-Time": "allTime" };
@@ -34,10 +35,16 @@ export default function Leaderboard() {
   const [period, setPeriod] = useState("Weekly");
   const [info, setInfo] = useState(false);
   const [boost, setBoost] = useState(false);
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState(null);
   const rows = lb[key[period]] || lb.weekly;
   const rest = rows.slice(3);
   const you = lb.you;
+  const handleBoostResult = (r) => {
+    if (r.type === "xp") store.addXp(r.value);
+    if (r.type === "xp" || r.type === "cash") {
+      setToast({ message: `${r.label} won`, action: { label: "View board", to: "/leaderboard" } });
+    }
+  };
 
   return (
     <div className="px-4 pt-2 pb-4">
@@ -141,11 +148,11 @@ export default function Leaderboard() {
           <button onClick={() => setBoost(false)} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-faint"><span className="ms">close</span></button>
         </div>
         <div className="mt-4">
-          <SpinWheel onResult={(r) => (r.type === "xp" || r.type === "cash") && setToast(`${r.label} won`)} />
+          <SpinWheel onResult={handleBoostResult} />
         </div>
       </Modal>
 
-      <Toast message={toast} open={!!toast} onDone={() => setToast("")} />
+      <Toast message={toast?.message} action={toast?.action} open={!!toast} onDone={() => setToast(null)} />
     </div>
   );
 }

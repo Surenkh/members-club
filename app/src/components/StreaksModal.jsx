@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import data from "../data/streaks.json";
 import Modal from "./Modal";
 import Toast from "./Toast";
 
-const LS_KEY = "nexus-streak";
+const LS_KEY = "member-streak";
 
 function DayIcon({ state }) {
   if (state === "claimed") return <span className="ms fill text-[18px] text-teal-pale">token</span>;
@@ -12,19 +12,15 @@ function DayIcon({ state }) {
 }
 
 export default function StreaksModal({ open, onClose, onClaim }) {
-  const [claimedToday, setClaimedToday] = useState(false);
-  const [toast, setToast] = useState("");
-
-  useEffect(() => {
+  const [claimedToday, setClaimedToday] = useState(() => {
     try {
       const s = JSON.parse(localStorage.getItem(LS_KEY));
-      if (s && s.date === new Date().toDateString()) setClaimedToday(true);
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    if (open) setToast("");
-  }, [open ]);
+      return Boolean(s && s.date === new Date().toDateString());
+    } catch {
+      return false;
+    }
+  });
+  const [toast, setToast] = useState("");
 
   const day = data.dayOfWeek;
   const claimedCount = data.claimedCount + (claimedToday ? 1 : 0);
@@ -33,7 +29,7 @@ export default function StreaksModal({ open, onClose, onClaim }) {
     setClaimedToday(true);
     localStorage.setItem(LS_KEY, JSON.stringify({ date: new Date().toDateString(), claimed: true }));
     setToast(`+${data.claimXp} XP claimed`);
-    onClaim && onClaim();
+    onClaim?.(data.claimXp);
   };
 
   return (

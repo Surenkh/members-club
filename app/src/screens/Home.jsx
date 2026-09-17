@@ -5,17 +5,19 @@ import competitions from "../data/competitions.json";
 import partners from "../data/partners.json";
 import lb from "../data/leaderboard.json";
 import streaks from "../data/streaks.json";
+import { store } from "../lib/store";
 import Chip from "../components/Chip";
 import SpinWheel from "../components/SpinWheel";
 import Toast from "../components/Toast";
 import { CountdownChip } from "../components/Countdown";
+import ImageWithSkeleton from "../components/ImageWithSkeleton";
 import { drawTarget } from "../lib/draw";
 
-function AllocationPanel() {
+function AllocationPanel({ xpBonus }) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("Entries");
   const rows = [
-    { name: "Porsche 911 GT3 RS", entries: 8, tag: "(Apex)" },
+    { name: "Porsche 911 GT3 RS", entries: 8, tag: "(Tier One)" },
     { name: "Rolex Submariner + Leica", entries: 5, tag: null },
     { name: "Carlton St. Moritz Escape", entries: 2, tag: null },
   ];
@@ -32,7 +34,7 @@ function AllocationPanel() {
       </button>
       <div className="mt-3 flex gap-2">
         <Chip icon="confirmation_number">{member.entries} Entries</Chip>
-        <Chip icon="military_tech">{member.xp.toLocaleString()} XP</Chip>
+        <Chip icon="military_tech">{(member.xp + xpBonus).toLocaleString()} XP</Chip>
         <Chip icon="redeem" tone="teal">{member.claimed} Claimed</Chip>
       </div>
       {open && (
@@ -65,9 +67,9 @@ function AllocationPanel() {
             <div className="mt-3 rounded-lg bg-card-2 p-3">
               <p className="text-[12px] font-bold text-fg">{member.levelName}</p>
               <p className="mt-0.5 text-[11px] text-muted">{member.tierBadge} ({member.boost})</p>
-              <p className="mt-2 text-[12px] font-bold tabular text-fg">{member.xp.toLocaleString()} / {member.xpMax.toLocaleString()} XP</p>
+              <p className="mt-2 text-[12px] font-bold tabular text-fg">{(member.xp + xpBonus).toLocaleString()} / {member.xpMax.toLocaleString()} XP</p>
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-hairline-soft">
-                <div className="h-full rounded-full bg-gradient-to-r from-indigo to-violet" style={{ width: `${(member.xp / member.xpMax) * 100}%` }} />
+                <div className="h-full rounded-full bg-gradient-to-r from-indigo to-violet" style={{ width: `${Math.min(100, ((member.xp + xpBonus) / member.xpMax) * 100)}%` }} />
               </div>
               <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted">
                 <span className="ms text-[14px]">lock_open</span>
@@ -99,13 +101,13 @@ function VaultHero({ c }) {
   return (
     <div className="mt-4 overflow-hidden rounded-2xl border border-hairline bg-card">
       <div className="relative">
-        <img src={c.image} alt="" className="h-52 w-full object-cover" />
+        <ImageWithSkeleton src={c.image} alt={c.title} className="h-52 w-full" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
         <div className="absolute left-3 top-3 flex items-center gap-2">
           <span className="rounded-md bg-ink/60 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-fg backdrop-blur">{c.badge}</span>
         </div>
         <div className="absolute right-3 top-3">
-          <CountdownChip to={drawTarget()} />
+          <CountdownChip to={drawTarget(c.id)} />
         </div>
         <div className="absolute bottom-3 left-3 right-3">
           <div className="flex items-center gap-2">
@@ -135,16 +137,22 @@ function VaultHero({ c }) {
   );
 }
 
-export default function Home({ onStreaks }) {
-  const [toast, setToast] = useState("");
+export default function Home() {
+  const [toast, setToast] = useState(null);
+  const [xpBonus, setXpBonus] = useState(store.xpBonus);
   const vault = competitions.items[0];
   const activeCards = competitions.items.filter((c) => c.status !== "ended").slice(0, 4);
   const top3 = lb.weekly.slice(0, 3);
   const rows = lb.weekly.slice(3, 8);
 
+  const onWheelResult = (r) => {
+    if (r.type === "xp") setXpBonus(store.addXp(r.value));
+    setToast({ message: `${r.label} won`, action: { label: "View board", to: "/leaderboard" } });
+  };
+
   return (
     <div className="px-4 pt-2 pb-4">
-      <AllocationPanel />
+      <AllocationPanel xpBonus={xpBonus} />
       <VaultHero c={vault} />
 
       {/* Competitions preview */}
@@ -164,10 +172,10 @@ export default function Home({ onStreaks }) {
           {activeCards.map((c) => (
             <Link to={`/competitions/${c.id}`} key={c.id} className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border border-hairline bg-card">
               <div className="relative">
-                <img src={c.image} alt="" className="h-36 w-full object-cover" />
+                <ImageWithSkeleton src={c.image} alt={c.title} className="h-36 w-full" />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
                 <div className="absolute bottom-2.5 left-2.5">
-                  <CountdownChip to={drawTarget()} />
+                  <CountdownChip to={drawTarget(c.id)} />
                 </div>
               </div>
               <div className="p-3.5">
@@ -200,14 +208,14 @@ export default function Home({ onStreaks }) {
             <p className="mt-0.5 text-[12px] text-muted">Curated member concessions & perks</p>
           </div>
           <Link to="/partners" className="flex items-center gap-0.5 text-[13px] font-bold text-indigo-bright">
-            Explore 34 <span className="ms text-[16px]">chevron_right</span>
+            Explore {partners.items.length} <span className="ms text-[16px]">chevron_right</span>
           </Link>
         </div>
         <div className="scroll-thin -mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1">
           {partners.items.map((p) => (
             <Link to="/partners" key={p.id} className="w-64 shrink-0 snap-start overflow-hidden rounded-2xl border border-hairline bg-card">
               <div className="relative">
-                <img src={p.image} alt="" className="h-36 w-full object-cover" />
+                <ImageWithSkeleton src={p.image} alt={p.name} className="h-36 w-full" />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
                 <div className="absolute bottom-2.5 left-2.5">
                   <span className="rounded-md bg-ink/60 px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-teal-pale backdrop-blur">{p.tierChip}</span>
@@ -234,7 +242,7 @@ export default function Home({ onStreaks }) {
           <p className="mt-1 max-w-[260px] text-[12px] leading-relaxed text-muted">Every daily spin grants verifiable XP, cash perks, or free re-spins.</p>
         </div>
         <div className="mt-4">
-          <SpinWheel onResult={(r) => r.type !== "none" && r.type !== "retry" && setToast(`${r.label} won`)} />
+          <SpinWheel onResult={onWheelResult} />
         </div>
       </section>
 
@@ -284,7 +292,7 @@ export default function Home({ onStreaks }) {
         </div>
       </section>
 
-      <Toast message={toast} open={!!toast} onDone={() => setToast("")} />
+      <Toast message={toast?.message} action={toast?.action} open={!!toast} onDone={() => setToast(null)} />
     </div>
   );
 }

@@ -29,7 +29,7 @@ export default function AppHeader({ onStreaks }) {
         </button>
       </div>
       <Link to="/account" aria-label="Account" className="relative">
-        <img src={member.avatarUrl} alt="" className="h-9 w-9 rounded-full border border-hairline object-cover" />
+        <img src={member.avatarUrl} alt="Member profile" className="h-9 w-9 rounded-full border border-hairline object-cover" />
         <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-ink bg-teal" />
       </Link>
     </header>

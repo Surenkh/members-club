@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import competitions from "../data/competitions.json";
-import Countdown, { formatDrawDate } from "../components/Countdown";
+import Countdown from "../components/Countdown";
+import { formatDrawDate } from "../lib/time";
 import { drawTarget } from "../lib/draw";
 import Modal from "../components/Modal";
 import Toast from "../components/Toast";
@@ -12,7 +13,7 @@ const GALLERY_LABELS = ["Aero Louvers", "Weissach Cockpit", "Diffuser", "Exhaust
 export default function CompetitionDetails() {
   const { id } = useParams();
   const c = competitions.items.find((x) => x.id === id) || competitions.items[0];
-  const target = drawTarget();
+  const target = drawTarget(c.id);
   const [bundle, setBundle] = useState(c.bundles[1] || c.bundles[0] || null);
   const [custom, setCustom] = useState(c.customDefault || 0);
   const [faq, setFaq] = useState(-1);
@@ -26,7 +27,7 @@ export default function CompetitionDetails() {
   const customTotal = (custom * (c.customPrice || 0)).toFixed(custom % 1 ? 2 : 0);
 
   return (
-    <div className="pb-28">
+    <div className="pb-44">
       {/* Back */}
       <div className="px-4 pt-2">
         <Link to="/competitions" aria-label="Back" className="flex h-10 w-10 items-center justify-center rounded-full border border-hairline bg-card text-fg">
@@ -36,7 +37,7 @@ export default function CompetitionDetails() {
 
       {/* Hero */}
       <div className="relative mt-3">
-        <img src={c.detailsImage} alt="" className="h-64 w-full object-cover" />
+        <img src={c.detailsImage} alt={c.detailsTitle} className="h-64 w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/25 to-transparent" />
         <div className="absolute left-4 top-3 flex items-center gap-2">
           <Chip icon="emoji_events">Active Vault Draw</Chip>
@@ -92,7 +93,7 @@ export default function CompetitionDetails() {
               <p className="mt-0.5 text-sm font-bold tabular text-fg">{c.autoAllocated || c.yourEntries}</p>
             </div>
             <div className="rounded-lg bg-card-2 py-2">
-              <p className="text-[10px] text-muted">Sovereign</p>
+              <p className="text-[10px] text-muted">Tier Two</p>
               <p className="mt-0.5 text-sm font-bold text-teal-pale">Active</p>
             </div>
             <div className="rounded-lg bg-card-2 py-2">
@@ -163,7 +164,7 @@ export default function CompetitionDetails() {
                   <div className="flex shrink-0 items-center gap-2">
                     <button onClick={() => setCustom(Math.max(0, custom - 5))} aria-label="Fewer entries" className="h-9 w-9 rounded-lg border border-hairline bg-card-2 text-lg font-bold text-fg">-</button>
                     <span className="w-12 text-center font-display text-base font-bold tabular text-fg">{custom}</span>
-                    <button onClick={() => setCustom(5 * (1 + Math.floor(Math.random() * 20)))} aria-label="Surprise amount" className="flex h-9 w-9 items-center justify-center rounded-lg border border-hairline bg-card-2 text-fg"><span className="ms text-[18px]">casino</span></button>
+                    <button title="Surprise me" onClick={() => setCustom(5 * (1 + Math.floor(Math.random() * 20)))} aria-label="Surprise me" className="flex h-9 w-9 items-center justify-center rounded-lg border border-hairline bg-card-2 text-fg"><span className="ms text-[18px]">casino</span></button>
                     <button onClick={() => setCustom(custom + 5)} aria-label="More entries" className="h-9 w-9 rounded-lg border border-hairline bg-card-2 text-lg font-bold text-fg">+</button>
                   </div>
                   <div className="shrink-0 text-right">
@@ -201,7 +202,7 @@ export default function CompetitionDetails() {
             <div className="scroll-thin -mx-4 mt-2.5 flex snap-x gap-2.5 overflow-x-auto px-4 pb-1">
               {["det-g1.jpg", "det-g2.jpg", "det-g3.jpg", "det-g4.jpg", "det-g5.jpg", "det-g6.jpg", "det-g7.jpg", "det-g8.jpg"].map((g, i) => (
                 <div key={g} className="relative w-44 shrink-0 snap-start overflow-hidden rounded-xl border border-hairline">
-                  <img src={`/assets/${g}`} alt="" className="h-28 w-full object-cover" />
+                  <img src={`/assets/${g}`} alt={`${c.detailsTitle} inspection ${i + 1}`} className="h-28 w-full object-cover" />
                   {i < GALLERY_LABELS.length && (
                     <span className="absolute bottom-2 left-2 rounded-md bg-ink/65 px-2 py-1 text-[10px] font-bold text-fg backdrop-blur">{GALLERY_LABELS[i]}</span>
                   )}
@@ -273,7 +274,7 @@ export default function CompetitionDetails() {
             <span className="ms">file_download</span> Pay with Apple Pay
           </button>
           <button onClick={() => { setShowCheckout(false); setToast("Entries added"); }} className="flex w-full items-center justify-center gap-2 rounded-xl border border-hairline bg-card py-3.5 text-sm font-bold text-fg active:scale-[0.98]">
-            <span className="ms">credit_card</span> Sovereign Card ···· 9012
+            <span className="ms">credit_card</span> Member Card ···· 9012
           </button>
         </div>
       </Modal>

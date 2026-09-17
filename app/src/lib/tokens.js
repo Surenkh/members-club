@@ -1,4 +1,4 @@
-// Sovereign Tier tokens mirrored for JS consumers (from Stitch export)
+// Member tokens mirrored for JS consumers (from Stitch export, brand-neutralized)
 export const tokens = {
   ink: "#090d16",
   inkDeep: "#060911",

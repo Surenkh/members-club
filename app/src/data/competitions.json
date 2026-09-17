@@ -32,7 +32,7 @@
       "odds": "1 in 4,200",
       "purchaseLimit": "$800.00 Max",
       "cta": "View Competition",
-      "tierTag": "APEX TIER SPECIAL",
+      "tierTag": "TIER ONE SPECIAL",
       "tierNote": "Auto-Included",
       "bundles": [
         { "entries": 10, "bonus": 2, "price": 25, "perEntry": 2.5, "label": null },
@@ -53,7 +53,7 @@
         { "icon": "radio_button_checked", "label": "RUNNING GEAR", "value": "Magnesium", "desc": "PCCB Carbon Ceramic Rotors" }
       ],
       "deliveryTitle": "Enclosed White-Glove Delivery",
-      "deliveryText": "Climate-controlled transport direct to winner's worldwide residence. Nexus Club covers all international customs, transfer duties, title registration, and initial service.",
+      "deliveryText": "Climate-controlled transport direct to winner's worldwide residence. Your club covers all international customs, transfer duties, title registration, and initial service.",
       "tickets": ["#88201", "#88202", "#88203", "#88204", "#88205", "#88206", "#88207", "#88208"]
     },
     {
@@ -94,7 +94,7 @@
       "image": "/assets/stmoritz.jpg",
       "detailsImage": "/assets/stmoritz.jpg",
       "status": "upcoming",
-      "badge": "APEX GETAWAY · 500 TOTAL POOL",
+      "badge": "TIER ONE GETAWAY · 500 TOTAL POOL",
       "pool": 500,
       "entryPrice": 3.0,
       "yourEntries": 2,
@@ -110,7 +110,7 @@
     {
       "id": "monaco-gp",
       "title": "Monaco Grand Prix VIP Weekend",
-      "subtitle": "Port Hercule trackside superyacht berth, pit lane walk, and sovereign hospitality access.",
+      "subtitle": "Port Hercule trackside superyacht berth, pit lane walk, and member hospitality access.",
       "detailsTitle": "Monaco Grand Prix VIP Weekend",
       "detailsSubtitle": "Trackside superyacht berth · Pit lane walk",
       "image": "/assets/monaco.jpg",
@@ -118,7 +118,7 @@
       "status": "ended",
       "badge": "VIP MOTORSPORT · 350 TOTAL POOL",
       "pool": 350,
-      "winner": { "name": "Julian D.", "ticket": "Ticket #NX-…" },
+      "winner": { "name": "Julian D.", "ticket": "Ticket #MB-…" },
       "entryPrice": 2.0,
       "yourEntries": 0,
       "cta": "View Winner Details",

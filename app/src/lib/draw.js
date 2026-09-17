@@ -1,8 +1,17 @@
-import { nextSunday2100UTC } from "../components/Countdown";
+import { nextSunday2100UTC } from "./time";
 
-// Shared demo draw target. Stitch hardcodes a fixed draw date ("Sunday, May 25, 2025,
-// 21:00 UTC"); the prototype targets the next Sunday 21:00 UTC so countdowns stay live
-// while keeping Stitch's exact label format. Known deviation, flagged in audit.
-export function drawTarget(from) {
-  return nextSunday2100UTC(from);
+// Per-draw targets keep the countdowns distinct like the Stitch prototype.
+// These are mock offsets, not production draw dates.
+const OFFSETS = {
+  "porsche-911": 0,
+  "rolex-leica": 2,
+  stmoritz: 6,
+  "monaco-gp": 4,
+  "ap-royaloak": 1,
+};
+
+export function drawTarget(id = "porsche-911", from) {
+  const target = nextSunday2100UTC(from);
+  target.setUTCDate(target.getUTCDate() + (OFFSETS[id] || 0));
+  return target;
 }

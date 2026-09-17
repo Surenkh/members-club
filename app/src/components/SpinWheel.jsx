@@ -42,8 +42,6 @@ export default function SpinWheel({ onResult }) {
     }, 4200);
   };
 
-  const cx = 160, cy = 160, r = 158 - RIM;
-  const polar = (a, rad) => [cx + rad * Math.cos((a - 90) * (Math.PI / 180)), cy + rad * Math.sin((a - 90) * (Math.PI / 180))];
   const ticks = Array.from({ length: 48 });
 
   return (
@@ -140,7 +138,7 @@ export default function SpinWheel({ onResult }) {
         disabled={spinning}
         className="mt-3 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white shadow-[var(--shadow-card)] transition hover:bg-indigo-bright active:scale-[0.98] disabled:opacity-60"
       >
-        {spinning ? "Spinning the apex vault..." : "Spin Wheel"}
+        {spinning ? "Spinning the prize wheel..." : "Spin Wheel"}
       </button>
 
       {result && (

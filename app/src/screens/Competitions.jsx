@@ -4,9 +4,12 @@ import competitions from "../data/competitions.json";
 import Chip from "../components/Chip";
 import { CountdownChip } from "../components/Countdown";
 import { drawTarget } from "../lib/draw";
+import Modal from "../components/Modal";
+import ImageWithSkeleton from "../components/ImageWithSkeleton";
 
 export default function Competitions() {
   const [f, setF] = useState("all");
+  const [winner, setWinner] = useState(null);
   const counts = {
     all: competitions.items.length,
     active: competitions.items.filter((c) => c.status === "active").length,
@@ -68,17 +71,17 @@ export default function Competitions() {
                     <p className="mt-1 text-sm font-bold text-fg">Winner: {c.winner.name} <span className="font-semibold text-muted">({c.winner.ticket})</span></p>
                   </div>
                 </div>
-                <span className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-hairline bg-card-2 py-3 text-sm font-bold text-muted">
+                <button onClick={() => setWinner(c)} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-hairline bg-card-2 py-3 text-sm font-bold text-muted active:scale-[0.98]">
                   <span className="ms text-[18px]">visibility</span> {c.cta}
-                </span>
+                </button>
               </div>
             ) : (
               <>
                 <div className="relative">
-                  <img src={c.image} alt="" className="h-44 w-full object-cover" />
+                  <ImageWithSkeleton src={c.image} alt={c.title} className="h-44 w-full" />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
                   <div className="absolute left-3 top-3 flex items-center gap-2">
-                    <CountdownChip to={drawTarget()} />
+                    <CountdownChip to={drawTarget(c.id)} />
                   </div>
                   {c.autoEntries ? (
                     <div className="absolute right-3 top-3">
@@ -128,6 +131,30 @@ export default function Competitions() {
           </div>
         ))}
       </div>
+
+      <Modal open={!!winner} onClose={() => setWinner(null)} labelledBy="winner-title">
+        {winner && (
+          <div>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-teal-pale">Completed Draw</p>
+                <h2 id="winner-title" className="mt-1 text-lg font-bold text-fg">{winner.title}</h2>
+              </div>
+              <button onClick={() => setWinner(null)} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-faint">
+                <span className="ms">close</span>
+              </button>
+            </div>
+            <div className="mt-4 rounded-xl border border-hairline-soft bg-card p-4">
+              <p className="flex items-center gap-2 text-sm font-bold text-fg">
+                <span className="ms text-gold">military_tech</span> Winner published
+              </p>
+              <p className="mt-2 text-sm text-muted">{winner.winner.name}</p>
+              <p className="mt-1 font-mono text-[12px] text-muted">{winner.winner.ticket}</p>
+            </div>
+            <button onClick={() => setWinner(null)} className="mt-4 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white">Close</button>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

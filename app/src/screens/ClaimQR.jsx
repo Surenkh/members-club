@@ -10,7 +10,7 @@ export default function ClaimQR() {
   const p = partners.items.find((x) => x.id === id) || partners.items[0];
   const [copied, setCopied] = useState(false);
   const [toast, setToast] = useState("");
-  const passCode = p.passCode || "NX-" + p.id.toUpperCase() + "-8841";
+  const passCode = p.passCode || "MB-" + p.id.toUpperCase() + "-8841";
 
   const copy = async () => {
     try {
@@ -25,7 +25,7 @@ export default function ClaimQR() {
     <div className="pb-6">
       {/* Hero */}
       <div className="relative">
-        <img src={p.image} alt="" className="h-56 w-full object-cover" />
+        <img src={p.image} alt={p.name} className="h-56 w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
         <Link to="/partners" className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-hairline bg-ink/60 backdrop-blur">
           <span className="ms text-fg">arrow_back</span>

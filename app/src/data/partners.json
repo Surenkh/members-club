@@ -1,14 +1,13 @@
 {
   "_mock": true,
   "_note": "Static prototype data transcribed from the Stitch export. Copy, states and token format mirror Stitch.",
-  "summary": { "activePerks": 34, "claimedThisMonth": 3, "tierScope": "Sovereign & Apex" },
+  "summary": { "activePerks": 4, "claimedThisMonth": 3, "tierScope": "Tier Two & Tier One" },
   "categories": [
-    { "key": "All Perks", "count": 34 },
-    { "key": "Food & Beverage", "count": 12 },
-    { "key": "Aviation & Travel", "count": 6 },
-    { "key": "Wellness & Spa", "count": 8 },
-    { "key": "Luxury Retail", "count": 5 },
-    { "key": "Clubs & Access", "count": 3 }
+    { "key": "All Perks", "count": 4 },
+    { "key": "Food & Beverage", "count": 1 },
+    { "key": "Aviation & Travel", "count": 1 },
+    { "key": "Wellness & Spa", "count": 1 },
+    { "key": "Luxury Retail", "count": 1 }
   ],
   "items": [
     {
@@ -16,13 +15,13 @@
       "name": "NetJets & VistaJet Private Terminal Access",
       "shortName": "NetJets & VistaJet",
       "category": "Aviation & Travel",
-      "tierChip": "TIER SPECIAL · APEX & SOVEREIGN",
+      "tierChip": "TIER SPECIAL · TIER ONE & TIER TWO",
       "benefit": "$750 Flight Credit + Chauffeur Transfer",
       "detail": "Complimentary tarmac escort, priority manifest booking, and fine catering included on all partner departures.",
       "image": "/assets/part-netjets.jpg",
       "ctaLabel": "Claim Privilege",
       "claimed": false,
-      "passCode": "8841-APEX-EXP"
+      "passCode": "8841-T1-EXP"
     },
     {
       "id": "verve",
@@ -42,7 +41,7 @@
       "name": "The Chedi & Badrutt's Palace",
       "shortName": "The Chedi & Badrutt's Palace",
       "category": "Wellness & Spa",
-      "tierChip": "HOSPITALITY · SOVEREIGN EXCLUSIVE",
+      "tierChip": "HOSPITALITY · TIER TWO EXCLUSIVE",
       "benefit": "Complimentary Suite Upgrade + $200 Spa Credit",
       "detail": "Guaranteed late 4 PM check-out, bespoke concierge luggage transfer, and welcome Dom Perignon service.",
       "image": "/assets/part-chedi.jpg",
@@ -55,7 +54,7 @@
       "name": "Bucherer & AP Private Salons",
       "shortName": "Bucherer & AP Private Salons",
       "category": "Luxury Retail",
-      "tierChip": "LUXURY RETAIL · APEX BENEFIT",
+      "tierChip": "LUXURY RETAIL · TIER ONE BENEFIT",
       "benefit": "VIP Allocation Access & Private Viewing",
       "detail": "Private suite appointment with dedicated master horologist, private lounge champagne service, and first refusal on allocations.",
       "image": "/assets/part-bucherer.jpg",

@@ -1,20 +1,23 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import partners from "../data/partners.json";
+import { store } from "../lib/store";
 import Chip from "../components/Chip";
 import Modal from "../components/Modal";
 import QRPass from "../components/QRPass";
 import Toast from "../components/Toast";
+import ImageWithSkeleton from "../components/ImageWithSkeleton";
 
 export default function Partners() {
   const [cat, setCat] = useState("All Perks");
   const [q, setQ] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [detail, setDetail] = useState(null);
-  const [claimed, setClaimed] = useState(() => new Set());
-  const [saved, setSaved] = useState(() => new Set());
+  const [claimed, setClaimed] = useState(() => store.claims);
+  const [saved, setSaved] = useState(() => store.saved);
   const [toast, setToast] = useState("");
   const [copied, setCopied] = useState(false);
+  const claimedCount = partners.summary.claimedThisMonth + claimed.size;
 
   const list = useMemo(() => {
     const inCat = cat === "All Perks" ? partners.items : partners.items.filter((p) => p.category === cat);
@@ -23,7 +26,7 @@ export default function Partners() {
   }, [cat, q]);
 
   const claim = (p) => {
-    setClaimed((s) => new Set(s).add(p.id));
+    setClaimed(store.addClaim(p.id));
     setCopied(false);
   };
 
@@ -68,7 +71,7 @@ export default function Partners() {
       {/* Summary chips */}
       <div className="scroll-thin mt-4 flex gap-2 overflow-x-auto pb-1">
         <Chip icon="verified">{partners.summary.activePerks} Active Perks</Chip>
-        <Chip icon="redeem" tone="teal">{partners.summary.claimedThisMonth} Claimed This Month</Chip>
+        <Chip icon="redeem" tone="teal">{claimedCount} Claimed This Month</Chip>
         <Chip icon="workspace_premium" tone="violet">{partners.summary.tierScope}</Chip>
       </div>
 
@@ -92,13 +95,13 @@ export default function Partners() {
         {list.map((p) => (
           <div key={p.id} className="overflow-hidden rounded-2xl border border-hairline bg-card">
             <div className="relative">
-              <img src={p.image} alt="" className="h-52 w-full object-cover" />
+              <ImageWithSkeleton src={p.image} alt={p.name} className="h-52 w-full" />
               <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
               <div className="absolute left-3 top-3">
                 <span className="rounded-md bg-ink/60 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-teal-pale backdrop-blur">{p.tierChip}</span>
               </div>
               <button
-                onClick={() => setSaved((s) => { const n = new Set(s); n.has(p.id) ? n.delete(p.id) : n.add(p.id); return n; })}
+                onClick={() => setSaved(store.toggleSaved(p.id))}
                 aria-label="Save perk"
                 className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-ink/60 text-fg backdrop-blur"
               >
@@ -171,7 +174,7 @@ export default function Partners() {
               <button onClick={() => setDetail(null)} aria-label="Close" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hairline text-faint"><span className="ms">close</span></button>
             </div>
             <div className="relative mt-4 overflow-hidden rounded-xl">
-              <img src={detail.image} alt="" className="h-36 w-full object-cover" />
+              <ImageWithSkeleton src={detail.image} alt={detail.name} className="h-36 w-full" />
               <div className="absolute left-2.5 top-2.5">
                 <span className="rounded-md bg-ink/60 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-teal-pale backdrop-blur">{detail.tierChip}</span>
               </div>
@@ -184,10 +187,10 @@ export default function Partners() {
                   <span className="ms fill text-[15px]">verified</span> Privilege claimed · pass ready
                 </p>
                 <div className="mt-3">
-                  <QRPass passId={detail.passCode || `NX-${detail.id.toUpperCase()}`} />
+                  <QRPass passId={detail.passCode || `MB-${detail.id.toUpperCase()}`} />
                 </div>
                 <div className="mt-3 flex w-full items-center justify-between rounded-xl border border-hairline bg-card-2 px-4 py-2.5">
-                  <span className="text-sm font-bold tabular text-fg">{detail.passCode || `NX-${detail.id.toUpperCase()}`}</span>
+                  <span className="text-sm font-bold tabular text-fg">{detail.passCode || `MB-${detail.id.toUpperCase()}`}</span>
                   <button onClick={() => copyCode(detail.passCode || detail.id)} className="flex items-center gap-1.5 rounded-lg border border-hairline bg-card px-3 py-1.5 text-[12px] font-bold text-muted active:scale-[0.98]">
                     <span className="ms text-[16px]">{copied ? "check" : "content_copy"}</span>
                     {copied ? "Copied" : "Copy"}
