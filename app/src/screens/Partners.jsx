@@ -1,29 +1,59 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import partners from "../data/partners.json";
 import { store } from "../lib/store";
+import { getMembership } from "../lib/membership";
 import Chip from "../components/Chip";
 import Modal from "../components/Modal";
 import QRPass from "../components/QRPass";
 import Toast from "../components/Toast";
+import PaywallSheet from "../components/PaywallSheet";
 import ImageWithSkeleton from "../components/ImageWithSkeleton";
 
 export default function Partners() {
-  const [cat, setCat] = useState("All Perks");
-  const [q, setQ] = useState("");
+  const navigate = useNavigate();
+  const memberState = getMembership();
+  const eligible = memberState.status === "active" || memberState.status === "cancelled";
+  const [cat, setCat] = useState(() => {
+    try {
+      return sessionStorage.getItem("filter:partners-cat") || "All Perks";
+    } catch {
+      return "All Perks";
+    }
+  });
+  const [q, setQ] = useState(() => {
+    try {
+      return sessionStorage.getItem("filter:partners-q") || "";
+    } catch {
+      return "";
+    }
+  });
   const [searchOpen, setSearchOpen] = useState(false);
   const [detail, setDetail] = useState(null);
   const [claimed, setClaimed] = useState(() => store.claims);
   const [saved, setSaved] = useState(() => store.saved);
   const [toast, setToast] = useState("");
   const [copied, setCopied] = useState(false);
+  const [paywall, setPaywall] = useState(false);
   const claimedCount = partners.summary.claimedThisMonth + claimed.size;
 
   const list = useMemo(() => {
+    try {
+      sessionStorage.setItem("filter:partners-cat", cat);
+      sessionStorage.setItem("filter:partners-q", q);
+    } catch {}
     const inCat = cat === "All Perks" ? partners.items : partners.items.filter((p) => p.category === cat);
     if (!q) return inCat;
     return inCat.filter((p) => (p.name + " " + p.benefit + " " + p.category).toLowerCase().includes(q.toLowerCase()));
   }, [cat, q]);
+
+  const openClaim = (p) => {
+    if (!eligible && !claimed.has(p.id)) {
+      setPaywall(true);
+      return;
+    }
+    setDetail(p);
+  };
 
   const claim = (p) => {
     setClaimed(store.addClaim(p.id));
@@ -119,7 +149,7 @@ export default function Partners() {
                   </Link>
                 ) : (
                   <button
-                    onClick={() => setDetail(p)}
+                    onClick={() => openClaim(p)}
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta py-3 text-sm font-bold uppercase tracking-wide text-white active:scale-[0.98]"
                   >
                     <span className="ms text-[19px]">featured_seasonal_and_gifts</span> {p.ctaLabel}
@@ -206,6 +236,8 @@ export default function Partners() {
           </div>
         )}
       </Modal>
+
+      <PaywallSheet open={paywall} onClose={() => setPaywall(false)} onPlans={() => navigate("/plans", { state: { from: "/partners" } })} reason="claim" />
 
       <Toast message={toast} open={!!toast} onDone={() => setToast("")} />
     </div>

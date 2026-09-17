@@ -20,7 +20,7 @@ const SLICES = [
 const SIZE = 320;
 const RIM = 14;
 
-export default function SpinWheel({ onResult }) {
+export default function SpinWheel({ onResult, gated, onGate, hideButton }) {
   const [rot, setRot] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
@@ -29,6 +29,10 @@ export default function SpinWheel({ onResult }) {
   const seg = 360 / n;
 
   const spin = () => {
+    if (gated) {
+      onGate && onGate();
+      return;
+    }
     if (spinning) return;
     setSpinning(true);
     setResult(null);
@@ -136,7 +140,7 @@ export default function SpinWheel({ onResult }) {
       <button
         onClick={spin}
         disabled={spinning}
-        className="mt-3 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white shadow-[var(--shadow-card)] transition hover:bg-indigo-bright active:scale-[0.98] disabled:opacity-60"
+        className={`${hideButton ? "hidden" : ""} mt-3 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white shadow-[var(--shadow-card)] transition hover:bg-indigo-bright active:scale-[0.98] disabled:opacity-60`}
       >
         {spinning ? "Spinning the prize wheel..." : "Spin Wheel"}
       </button>

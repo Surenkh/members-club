@@ -8,7 +8,19 @@ import Modal from "../components/Modal";
 import ImageWithSkeleton from "../components/ImageWithSkeleton";
 
 export default function Competitions() {
-  const [f, setF] = useState("all");
+  const [f, setF] = useState(() => {
+    try {
+      return sessionStorage.getItem("filter:competitions") || "all";
+    } catch {
+      return "all";
+    }
+  });
+  const pick = (k) => {
+    setF(k);
+    try {
+      sessionStorage.setItem("filter:competitions", k);
+    } catch {}
+  };
   const [winner, setWinner] = useState(null);
   const counts = {
     all: competitions.items.length,
@@ -36,7 +48,7 @@ export default function Competitions() {
         {competitions.filters.map((x) => (
           <button
             key={x.key}
-            onClick={() => setF(x.key)}
+            onClick={() => pick(x.key)}
             className={`shrink-0 rounded-lg border px-3.5 py-2 text-[12px] font-bold transition ${
               f === x.key ? "border-transparent bg-cta text-white" : "border-hairline bg-card text-muted"
             }`}

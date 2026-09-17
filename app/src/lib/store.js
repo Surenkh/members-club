@@ -49,4 +49,48 @@ export const store = {
     set("member-saved", [...s]);
     return s;
   },
+  get points() {
+    return get("member-points", 0);
+  },
+  addPoints(n) {
+    set("member-points", this.points + n);
+    return this.points;
+  },
+  get lastSpin() {
+    return get("member-spins", null);
+  },
+  setLastSpin(result) {
+    set("member-spins", { date: DAY(), result });
+  },
+  spunToday() {
+    const s = this.lastSpin;
+    return Boolean(s && s.date === DAY());
+  },
+  get tickets() {
+    return get("member-tickets", []);
+  },
+  addTickets(entry) {
+    const t = this.tickets;
+    t.push(entry);
+    set("member-tickets", t);
+    return t;
+  },
+  get reserved() {
+    return get("member-reserved", []);
+  },
+  setReserved(list) {
+    set("member-reserved", list);
+  },
+  get billing() {
+    return get("member-billing", []);
+  },
+  setBilling(list) {
+    set("member-billing", list);
+  },
+  get profile() {
+    return get("member-profile", null);
+  },
+  setProfile(p) {
+    set("member-profile", p);
+  },
 };

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import data from "../data/streaks.json";
 import Modal from "./Modal";
 import Toast from "./Toast";
+import { getMembership } from "../lib/membership";
 
 const LS_KEY = "member-streak";
 
@@ -20,17 +22,46 @@ export default function StreaksModal({ open, onClose, onClaim }) {
       return false;
     }
   });
+  const [freshReset, setFreshReset] = useState(false);
   const [toast, setToast] = useState("");
+  const collectedRef = useRef(false);
+  const memberState = getMembership();
+  const collectible = memberState.status === "active" || memberState.status === "cancelled";
+  const previewOnly = !collectible;
 
-  const day = data.dayOfWeek;
-  const claimedCount = data.claimedCount + (claimedToday ? 1 : 0);
-
-  const claim = () => {
+  const collect = () => {
     setClaimedToday(true);
     localStorage.setItem(LS_KEY, JSON.stringify({ date: new Date().toDateString(), claimed: true }));
     setToast(`+${data.claimXp} XP claimed`);
     onClaim?.(data.claimXp);
   };
+
+  // Eligible members collect automatically on open. No second Claim button.
+  // A missed day restarts the seven-day sequence (demo rule, see spec notes).
+  useEffect(() => {
+    if (!open) {
+      collectedRef.current = false;
+      return;
+    }
+    setToast("");
+    if (!collectible || claimedToday) return;
+    try {
+      const s = JSON.parse(localStorage.getItem(LS_KEY));
+      const last = s?.date ? new Date(s.date) : null;
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      if (last && last.toDateString() !== new Date().toDateString() && last.toDateString() !== yesterday.toDateString()) {
+        setFreshReset(true);
+      }
+    } catch {}
+    if (collectedRef.current) return;
+    collectedRef.current = true;
+    collect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open ]);
+
+  const day = data.dayOfWeek;
+  const claimedCount = data.claimedCount + (claimedToday ? 1 : 0);
 
   return (
     <Modal open={open} onClose={onClose} labelledBy="streaks-title">
@@ -114,14 +145,26 @@ export default function StreaksModal({ open, onClose, onClaim }) {
         </div>
       </div>
 
-      <button
-        onClick={claim}
-        disabled={claimedToday}
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-deep via-indigo to-violet py-4 text-sm font-bold uppercase tracking-wide text-white active:scale-[0.98] disabled:opacity-70"
-      >
-        <span className="ms">verified</span>
-        {claimedToday ? "Claimed today" : `Claim Today (+${data.claimXp} XP)`}
-      </button>
+      {freshReset && collectible && (
+        <p className="mt-3 rounded-xl border border-hairline-soft bg-card px-4 py-2.5 text-[11px] leading-relaxed text-muted">
+          A day was missed, so a fresh seven-day sequence started. Demo rule; not a final policy.
+        </p>
+      )}
+
+      {previewOnly ? (
+        <div className="mt-4">
+          <p className="rounded-xl border border-hairline-soft bg-card px-4 py-3 text-[12px] leading-relaxed text-muted">
+            Daily streaks reward members with XP and a Day 7 finale. This is a preview — nothing is collected.
+          </p>
+          <Link to="/plans" onClick={onClose} className="mt-3 block rounded-xl bg-cta py-3.5 text-center text-sm font-bold text-white active:scale-[0.98]">
+            View plans
+          </Link>
+        </div>
+      ) : claimedToday ? (
+        <p className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-teal/40 bg-teal-soft py-3.5 text-sm font-bold text-teal-pale">
+          <span className="ms fill text-[19px]">check_circle</span> Today&apos;s reward collected
+        </p>
+      ) : null}
       <p className="mt-2.5 flex items-center justify-center gap-1.5 text-[11px] text-muted">
         <span className="ms text-[14px]">schedule</span>
         Next unlock in <span className="font-bold tabular text-fg">{data.unlockIn}</span>

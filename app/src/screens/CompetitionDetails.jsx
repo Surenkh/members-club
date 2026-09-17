@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import competitions from "../data/competitions.json";
 import Countdown from "../components/Countdown";
 import { formatDrawDate } from "../lib/time";
@@ -7,24 +7,64 @@ import { drawTarget } from "../lib/draw";
 import Modal from "../components/Modal";
 import Toast from "../components/Toast";
 import Chip from "../components/Chip";
+import PaywallSheet from "../components/PaywallSheet";
+import { store } from "../lib/store";
+import { getMembership } from "../lib/membership";
 
 const GALLERY_LABELS = ["Aero Louvers", "Weissach Cockpit", "Diffuser", "Exhaust"];
 
 export default function CompetitionDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const c = competitions.items.find((x) => x.id === id) || competitions.items[0];
   const target = drawTarget(c.id);
+  const memberState = getMembership();
+  const eligible = memberState.status === "active" || memberState.status === "cancelled";
+  const purchasable = eligible && c.status === "active" && c.bundles.length > 0;
   const [bundle, setBundle] = useState(c.bundles[1] || c.bundles[0] || null);
   const [custom, setCustom] = useState(c.customDefault || 0);
   const [faq, setFaq] = useState(-1);
   const [showTickets, setShowTickets] = useState(false);
   const [ticketsOpen, setTicketsOpen] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [payFailed, setPayFailed] = useState(false);
+  const [paywall, setPaywall] = useState(false);
   const [toast, setToast] = useState("");
 
   const totalEntries = bundle ? bundle.entries + bundle.bonus : 0;
   const price = bundle ? bundle.price : 0;
   const customTotal = (custom * (c.customPrice || 0)).toFixed(custom % 1 ? 2 : 0);
+
+  const beginPurchase = () => {
+    if (!eligible) {
+      setPaywall(true);
+      return;
+    }
+    setPayFailed(false);
+    setShowTickets(true);
+  };
+
+  const pay = (simulateFail) => {
+    setPaying(true);
+    setTimeout(() => {
+      setPaying(false);
+      if (simulateFail) {
+        setPayFailed(true);
+        return;
+      }
+      store.addTickets({
+        competitionId: c.id,
+        title: c.detailsTitle,
+        entries: totalEntries,
+        source: "Purchased bundle",
+        date: new Date().toISOString().slice(0, 10),
+        order: `MB-${String(Math.floor(100000 + Math.random() * 900000))}`,
+      });
+      setShowCheckout(false);
+      setToast(`${totalEntries} entries added to ${c.detailsTitle}`);
+    }, 1200);
+  };
 
   return (
     <div className="pb-44">
@@ -232,7 +272,7 @@ export default function CompetitionDetails() {
       </div>
 
       {/* Sticky bar */}
-      {bundle && (
+      {bundle && c.status === "active" && (
         <div className="fixed bottom-[76px] inset-x-0 z-30">
           <div className="mx-auto max-w-md px-4">
             <div className="flex items-center justify-between rounded-2xl border border-hairline bg-card-2/95 px-4 py-3 backdrop-blur" style={{ boxShadow: "var(--shadow-bar)" }}>
@@ -240,10 +280,17 @@ export default function CompetitionDetails() {
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted">Total Due</p>
                 <p className="font-display text-lg font-bold tabular text-fg">${price} <span className="text-[11px] font-semibold text-teal-pale">{totalEntries} entries</span></p>
               </div>
-              <button onClick={() => setShowTickets(true)} className="flex items-center gap-1.5 rounded-xl bg-cta px-6 py-3 text-sm font-bold text-white active:scale-[0.98]">
+              <button onClick={beginPurchase} className="flex items-center gap-1.5 rounded-xl bg-cta px-6 py-3 text-sm font-bold text-white active:scale-[0.98]">
                 Continue <span className="ms text-[18px]">arrow_forward</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {bundle && c.status !== "active" && (
+        <div className="px-4">
+          <div className="rounded-2xl border border-hairline bg-card px-4 py-3.5 text-[12px] leading-relaxed text-muted">
+            {c.status === "upcoming" ? "Entries open when this draw opens. Reserved automatic entries will appear here." : "This draw is closed. No new entries can be added."}
           </div>
         </div>
       )}
@@ -264,20 +311,43 @@ export default function CompetitionDetails() {
       </Modal>
 
       {/* Checkout modal */}
-      <Modal open={showCheckout} onClose={() => setShowCheckout(false)} labelledBy="checkout-title">
+      <Modal open={showCheckout} onClose={() => (paying ? null : setShowCheckout(false))} labelledBy="checkout-title">
         <div className="flex items-center justify-between">
           <h3 id="checkout-title" className="text-lg font-bold text-fg">Payment</h3>
-          <button onClick={() => setShowCheckout(false)} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-faint"><span className="ms">close</span></button>
+          <button onClick={() => setShowCheckout(false)} aria-label="Close" disabled={paying} className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-faint disabled:opacity-50"><span className="ms">close</span></button>
         </div>
+        <div className="mt-4 rounded-xl border border-hairline-soft bg-card p-4 text-[13px]">
+          <div className="flex justify-between"><span className="text-muted">Competition</span><span className="font-bold text-fg">{c.detailsTitle}</span></div>
+          <div className="mt-1.5 flex justify-between"><span className="text-muted">Tickets</span><span className="font-bold tabular text-fg">{totalEntries}</span></div>
+          <div className="mt-1.5 flex justify-between"><span className="text-muted">Total</span><span className="font-bold tabular text-fg">${price} USD</span></div>
+          <div className="mt-1.5 flex justify-between"><span className="text-muted">Method</span><span className="font-bold text-fg">Member Card ···· 9012</span></div>
+        </div>
+        {payFailed && (
+          <p className="mt-3 rounded-xl border border-red-400/40 bg-red-400/10 px-4 py-3 text-[12px] font-semibold text-red-300">
+            Payment failed (demo). Nothing was added and your bundle selection is kept.
+          </p>
+        )}
         <div className="mt-4 space-y-2.5">
-          <button onClick={() => { setShowCheckout(false); setToast("Entries added"); }} className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-sm font-bold text-black active:scale-[0.98]">
-            <span className="ms">file_download</span> Pay with Apple Pay
+          <button disabled={paying} onClick={() => pay(false)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-sm font-bold text-black active:scale-[0.98] disabled:opacity-60">
+            <span className="ms">file_download</span> {paying ? "Processing..." : `Pay $${price} with Apple Pay`}
           </button>
-          <button onClick={() => { setShowCheckout(false); setToast("Entries added"); }} className="flex w-full items-center justify-center gap-2 rounded-xl border border-hairline bg-card py-3.5 text-sm font-bold text-fg active:scale-[0.98]">
-            <span className="ms">credit_card</span> Member Card ···· 9012
+          <button disabled={paying} onClick={() => pay(false)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-hairline bg-card py-3.5 text-sm font-bold text-fg active:scale-[0.98] disabled:opacity-60">
+            <span className="ms">credit_card</span> {paying ? "Processing..." : "Pay with Member Card"}
           </button>
+          {!paying && (
+            <button onClick={() => pay(true)} className="w-full py-1 text-[11px] font-semibold text-faint">
+              Simulate a failed payment
+            </button>
+          )}
+          {!paying && (
+            <button onClick={() => setShowCheckout(false)} className="w-full rounded-xl border border-hairline py-3 text-sm font-bold text-muted">
+              Cancel
+            </button>
+          )}
         </div>
       </Modal>
+
+      <PaywallSheet open={paywall} onClose={() => setPaywall(false)} onPlans={() => navigate("/plans", { state: { from: `/competitions/${c.id}` } })} reason="participate" />
 
       <Toast message={toast} open={!!toast} onDone={() => setToast("")} />
     </div>

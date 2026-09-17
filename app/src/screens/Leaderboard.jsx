@@ -1,12 +1,14 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import lb from "../data/leaderboard.json";
 import Modal from "../components/Modal";
 import SpinWheel from "../components/SpinWheel";
 import Toast from "../components/Toast";
 import { store } from "../lib/store";
+import { getMembership } from "../lib/membership";
 
-const PERIODS = ["Weekly", "Monthly", "All-Time"];
-const key = { Weekly: "weekly", Monthly: "monthly", "All-Time": "allTime" };
+const PERIODS = ["Weekly", "Championship"];
+const key = { Weekly: "weekly", Championship: "championship" };
 
 function Podium({ rows }) {
   const [second, first, third] = [rows[1], rows[0], rows[2]];
@@ -32,6 +34,7 @@ function Podium({ rows }) {
 }
 
 export default function Leaderboard() {
+  const navigate = useNavigate();
   const [period, setPeriod] = useState("Weekly");
   const [info, setInfo] = useState(false);
   const [boost, setBoost] = useState(false);
@@ -39,6 +42,10 @@ export default function Leaderboard() {
   const rows = lb[key[period]] || lb.weekly;
   const rest = rows.slice(3);
   const you = lb.you;
+  const memberState = getMembership();
+  const hasHistory = store.xpBonus > 0 || store.tickets.length > 0 || store.claims.size > 0;
+  const showPersonal = memberState.status === "active" || memberState.status === "cancelled" || memberState.status === "retry" || memberState.status === "semi" || hasHistory;
+  const cycleLine = period === "Championship" ? lb.championshipLine : lb.resetLine;
   const handleBoostResult = (r) => {
     if (r.type === "xp") store.addXp(r.value);
     if (r.type === "xp" || r.type === "cash") {
@@ -52,7 +59,7 @@ export default function Leaderboard() {
       <div className="flex items-center justify-between rounded-2xl border border-hairline bg-card px-4 py-3">
         <p className="flex items-center gap-1.5 text-[12px] font-semibold text-muted">
           <span className="ms text-[16px] text-teal-pale">schedule</span>
-          {lb.resetLine}
+          {cycleLine}
         </p>
         <button onClick={() => setInfo(true)} aria-label="How XP works" className="flex h-8 w-8 items-center justify-center rounded-full border border-hairline text-muted">
           <span className="ms text-[18px]">info</span>
@@ -72,20 +79,30 @@ export default function Leaderboard() {
         ))}
       </div>
 
-      {/* You card */}
-      <div className="mt-3 flex items-center gap-3 rounded-2xl border border-indigo/50 bg-indigo-soft p-4">
-        <span className="font-display text-xl font-bold tabular text-indigo-bright">#{you.rank}</span>
-        <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-1 truncate text-sm font-bold text-fg">
-            You ({you.tier}) <span className="ms fill text-[14px] text-indigo-bright">verified</span>
-          </p>
-          <p className="mt-0.5 text-[11px] text-muted">{you.bracket} · +{you.needed} XP needed for Rank {you.neededFor}</p>
+      {/* You card or nonmember invitation */}
+      {showPersonal ? (
+        <div className="mt-3 flex items-center gap-3 rounded-2xl border border-indigo/50 bg-indigo-soft p-4">
+          <span className="font-display text-xl font-bold tabular text-indigo-bright">#{you.rank}</span>
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-1 truncate text-sm font-bold text-fg">
+              You ({you.tier}) <span className="ms fill text-[14px] text-indigo-bright">verified</span>
+            </p>
+            <p className="mt-0.5 text-[11px] text-muted">{you.bracket} · +{you.needed} XP needed for Rank {you.neededFor}</p>
+          </div>
+          <div className="text-right">
+            <p className="font-display text-lg font-bold tabular text-fg">{(you.xp + store.xpBonus).toLocaleString()} XP</p>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-muted">Points</p>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="font-display text-lg font-bold tabular text-fg">{you.xp.toLocaleString()} XP</p>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-muted">Points</p>
+      ) : (
+        <div className="mt-3 rounded-2xl border border-violet/40 bg-violet-soft p-4 text-center">
+          <p className="text-sm font-bold text-fg">Become a member to start earning XP</p>
+          <p className="mt-1 text-[12px] text-muted">Rankings are open to browse. Personal standings unlock with membership.</p>
+          <button onClick={() => navigate("/plans", { state: { from: "/leaderboard" } })} className="mt-3 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white">
+            View plans
+          </button>
         </div>
-      </div>
+      )}
 
       {/* Boost promo */}
       <button onClick={() => setBoost(true)} className="mt-3 flex w-full items-center gap-2.5 rounded-2xl border border-violet/40 bg-violet-soft p-4 text-left active:scale-[0.99]">

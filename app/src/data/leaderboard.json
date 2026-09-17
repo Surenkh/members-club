@@ -1,13 +1,14 @@
 {
   "_mock": true,
   "_note": "Static prototype data transcribed from the Stitch export. Ranks, names and XP are mock content.",
-  "periods": ["Weekly", "Monthly", "All-Time"],
+  "periods": ["Weekly", "Championship"],
   "resetLine": "Resets in 02d 11h · Top 3 win Credits",
+  "championshipLine": "Season ends in 21d 06h · Champion takes 5,000 Credits",
   "cycleNote": "Leaderboard cycles close every Sunday at 23:59 UTC. Points are accrued through verified member partner check-ins, tier challenges, and curated syndicate allocations.",
   "rewards": [
-    { "place": "1st Place", "reward": "+500 Credits tokens", "perk": "Private Vault Key" },
-    { "place": "2nd Place", "reward": "+250 Credits tokens", "perk": "Concierge Access" },
-    { "place": "3rd Place", "reward": "+100 Credits tokens", "perk": null }
+    { "place": "1st Place", "reward": "+500 Credits", "perk": "Private Vault Key" },
+    { "place": "2nd Place", "reward": "+250 Credits", "perk": "Concierge Access" },
+    { "place": "3rd Place", "reward": "+100 Credits", "perk": null }
   ],
   "you": { "rank": 42, "tier": "Silver Tier Two", "xp": 1450, "needed": 250, "neededFor": 41, "bracket": "Top 15%" },
   "boost": { "label": "2x XP Partner Challenge active", "cta": "Boost XP" },
@@ -25,15 +26,10 @@
     { "rank": 11, "initials": "LT", "name": "Liam Thorne", "tier": "Tier Two", "xp": 1510 },
     { "rank": 12, "initials": "CB", "name": "Chloe Bennett", "tier": "Tier Two", "xp": 1490 }
   ],
-  "monthly": [
+  "championship": [
     { "rank": 1, "initials": "SR", "name": "Sophia R.", "tier": "Tier One Member", "xp": 18400, "reward": "+500 Credits", "leader": true, "verified": true },
     { "rank": 2, "initials": "MC", "name": "Marcus C.", "tier": "Tier One Member", "xp": 17120, "reward": "+250 Credits" },
     { "rank": 3, "initials": "IS", "name": "Ingrid Solberg", "tier": "Tier Two", "xp": 15940, "reward": "+100 Credits" },
     { "rank": 4, "initials": "AK", "name": "Alexander K.", "tier": "Tier One Member", "xp": 14260 }
-  ],
-  "allTime": [
-    { "rank": 1, "initials": "YT", "name": "Yuki Tanaka", "tier": "Tier One Member", "xp": 96400, "reward": "+500 Credits", "leader": true, "verified": true },
-    { "rank": 2, "initials": "IS", "name": "Ingrid Solberg", "tier": "Tier Two", "xp": 88220, "reward": "+250 Credits" },
-    { "rank": 3, "initials": "AO", "name": "Amara Okafor", "tier": "Tier Two", "xp": 83150, "reward": "+100 Credits" }
   ]
 }

@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import member from "../data/member.json";
 import competitions from "../data/competitions.json";
 import partners from "../data/partners.json";
 import lb from "../data/leaderboard.json";
 import streaks from "../data/streaks.json";
 import { store } from "../lib/store";
+import { getMembership } from "../lib/membership";
+import PaywallSheet from "../components/PaywallSheet";
 import Chip from "../components/Chip";
 import SpinWheel from "../components/SpinWheel";
 import Toast from "../components/Toast";
@@ -138,8 +140,13 @@ function VaultHero({ c }) {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
   const [toast, setToast] = useState(null);
+  const [paywall, setPaywall] = useState(false);
   const [xpBonus, setXpBonus] = useState(store.xpBonus);
+  const memberState = getMembership();
+  const canSpin = memberState.status === "active" || memberState.status === "cancelled";
+  const spinUsed = store.spunToday();
   const vault = competitions.items[0];
   const activeCards = competitions.items.filter((c) => c.status !== "ended").slice(0, 4);
   const top3 = lb.weekly.slice(0, 3);
@@ -147,6 +154,8 @@ export default function Home() {
 
   const onWheelResult = (r) => {
     if (r.type === "xp") setXpBonus(store.addXp(r.value));
+    if (r.type === "cash") store.addPoints(r.value);
+    store.setLastSpin({ label: Array.isArray(r.label) ? r.label.join(" ") : r.label, type: r.type, value: r.value || 0 });
     setToast({ message: `${r.label} won`, action: { label: "View board", to: "/leaderboard" } });
   };
 
@@ -242,7 +251,15 @@ export default function Home() {
           <p className="mt-1 max-w-[260px] text-[12px] leading-relaxed text-muted">Every daily spin grants verifiable XP, cash perks, or free re-spins.</p>
         </div>
         <div className="mt-4">
-          <SpinWheel onResult={onWheelResult} />
+          {spinUsed ? (
+            <div className="flex flex-col items-center rounded-2xl border border-hairline bg-card p-5 text-center">
+              <span className="ms fill text-[26px] text-teal-pale">check_circle</span>
+              <p className="mt-2 text-sm font-bold text-fg">Today&apos;s spin is used</p>
+              <Link to="/spins" className="mt-1 text-[12px] font-bold text-indigo-bright">Open Spins for the countdown</Link>
+            </div>
+          ) : (
+            <SpinWheel gated={!canSpin} onGate={() => setPaywall(true)} onResult={onWheelResult} />
+          )}
         </div>
       </section>
 
@@ -293,6 +310,7 @@ export default function Home() {
       </section>
 
       <Toast message={toast?.message} action={toast?.action} open={!!toast} onDone={() => setToast(null)} />
+      <PaywallSheet open={paywall} onClose={() => setPaywall(false)} onPlans={() => navigate("/plans", { state: { from: "/" } })} reason="spin" />
     </div>
   );
 }
