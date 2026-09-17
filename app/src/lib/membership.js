@@ -8,6 +8,7 @@ export const PLANS = [
     id: "pro",
     name: "Pro",
     icon: "military_tech",
+    accent: "teal",
     monthly: 19,
     yearly: 190,
     blurb: "Weekly draws, partner essentials, daily spin.",
@@ -18,6 +19,7 @@ export const PLANS = [
     id: "premium",
     name: "Premium",
     icon: "workspace_premium",
+    accent: "indigo",
     monthly: 39,
     yearly: 390,
     blurb: "Bigger pools, premium partners, priority draws.",
@@ -28,7 +30,8 @@ export const PLANS = [
   {
     id: "diamond",
     name: "Diamond",
-    icon: "crown",
+    icon: "diamond",
+    accent: "gold",
     monthly: 79,
     yearly: 790,
     blurb: "Top pools, concierge access, first refusal.",
@@ -44,7 +47,9 @@ export function getMembership() {
     const v = JSON.parse(localStorage.getItem(KEY));
     if (v && v.status) return v;
   } catch {}
-  return { status: "unsubscribed", plan: null, period: null, startedAt: null, renewalDate: null, accessEnd: null };
+  // Default prototype state: subscribed (Premium monthly). Use Demo controls
+  // in Account to switch to unsubscribed or other access states for testing.
+  return { status: "active", plan: "premium", period: "monthly", startedAt: new Date().toISOString(), renewalDate: null, accessEnd: null };
 }
 
 export function setMembership(m) {

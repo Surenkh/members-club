@@ -14,7 +14,6 @@ export default function Plans() {
   const [preview, setPreview] = useState(null);
   const [method, setMethod] = useState("card");
   const currentMember = getMembership();
-  const changing = currentMember.status === "active" && currentMember.plan && currentMember.plan !== (plan && plan.id);
 
   const startCheckout = (p) => {
     setPlan(p);
@@ -44,6 +43,28 @@ export default function Plans() {
 
   const amount = plan ? planPrice(plan, period) : 0;
 
+  // Per-plan color identity: teal Pro, indigo Premium, gold Diamond.
+  const ACCENTS = {
+    teal: {
+      card: "border-teal/50 bg-teal-soft/40",
+      icon: "text-teal-pale",
+      price: "text-teal-pale",
+      btn: "bg-teal text-pine",
+    },
+    indigo: {
+      card: "border-indigo-bright bg-indigo-soft",
+      icon: "text-indigo-bright",
+      price: "text-fg",
+      btn: "bg-cta text-white",
+    },
+    gold: {
+      card: "border-gold/50 bg-gold/10",
+      icon: "text-gold",
+      price: "text-gold-pale",
+      btn: "bg-gold text-[#402d08]",
+    },
+  };
+
   return (
     <div className="px-4 pt-2 pb-4">
       <div className="flex items-center gap-3">
@@ -69,15 +90,19 @@ export default function Plans() {
       </div>
 
       <div className="mt-3 space-y-3">
-        {PLANS.map((p) => (
-          <div key={p.id} className={`rounded-2xl border p-4 ${p.recommended ? "border-indigo-bright bg-indigo-soft" : "border-hairline bg-card"}`}>
+        {PLANS.map((p) => {
+          const a = ACCENTS[p.accent] || ACCENTS.indigo;
+          const isCurrent = currentMember.status === "active" && currentMember.plan === p.id;
+          return (
+          <div key={p.id} className={`rounded-2xl border p-4 ${a.card}`}>
             <div className="flex items-center justify-between">
               <p className="flex items-center gap-2 text-[15px] font-bold text-fg">
-                <span className="ms text-[19px] text-gold">{p.icon}</span> {p.name}
+                <span className={`ms text-[19px] ${a.icon}`}>{p.icon}</span> {p.name}
               </p>
               {p.recommended && <span className="rounded bg-gold/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-gold">Recommended</span>}
+              {isCurrent && <span className="rounded bg-teal-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-teal-pale">Current</span>}
             </div>
-            <p className="mt-1 font-display text-[26px] font-bold text-fg">
+            <p className={`mt-1 font-display text-[26px] font-bold ${a.price}`}>
               ${period === "yearly" ? p.yearly : p.monthly}
               <span className="ml-1 text-[12px] font-semibold text-muted">/ {period === "yearly" ? "year" : "month"}</span>
             </p>
@@ -90,11 +115,12 @@ export default function Plans() {
                 </li>
               ))}
             </ul>
-            <button onClick={() => startCheckout(p)} className="mt-3.5 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white active:scale-[0.98]">
-              {currentMember.status === "active" && currentMember.plan === p.id ? "Current plan" : `Choose ${p.name}`}
+            <button onClick={() => startCheckout(p)} disabled={isCurrent} className={`mt-3.5 w-full rounded-xl py-3 text-sm font-bold active:scale-[0.98] disabled:opacity-60 ${a.btn}`}>
+              {isCurrent ? "Current plan" : `Choose ${p.name}`}
             </button>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <Modal open={!!plan} onClose={() => (phase === "processing" ? null : setPlan(null))} labelledBy="checkout-title">
