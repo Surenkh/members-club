@@ -47,9 +47,9 @@ export function getMembership() {
     const v = JSON.parse(localStorage.getItem(KEY));
     if (v && v.status) return v;
   } catch {}
-  // Default prototype state: subscribed (Premium monthly). Use Demo controls
+  // Default prototype state: subscribed (Pro monthly). Use Demo controls
   // in Account to switch to unsubscribed or other access states for testing.
-  return { status: "active", plan: "premium", period: "monthly", startedAt: new Date().toISOString(), renewalDate: null, accessEnd: null };
+  return { status: "active", plan: "pro", period: "monthly", startedAt: new Date().toISOString(), renewalDate: null, accessEnd: null };
 }
 
 export function setMembership(m) {

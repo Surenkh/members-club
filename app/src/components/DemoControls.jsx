@@ -14,7 +14,7 @@ export default function DemoControls({ open, onClose }) {
   const current = getMembership().status;
   const apply = (status) => {
     const m = getMembership();
-    setMembership({ ...m, status, plan: status === "unsubscribed" || status === "inactive" ? null : m.plan || "premium" });
+    setMembership({ ...m, status, plan: status === "unsubscribed" || status === "inactive" ? null : m.plan || "pro" });
     onClose();
   };
   return (
