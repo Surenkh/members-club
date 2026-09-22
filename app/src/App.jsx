@@ -46,7 +46,7 @@ function ScrollManager() {
   return null;
 }
 
-function Shell({ streaksOpen, closeStreaks, onboarded, finishOnboarding, openStreaks }) {
+function Shell({ streaksOpen, closeStreaks, showOnboarding, finishOnboarding, openStreaks }) {
   const location = useLocation();
   return (
     <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col bg-ink">
@@ -72,26 +72,26 @@ function Shell({ streaksOpen, closeStreaks, onboarded, finishOnboarding, openStr
       </main>
       <BottomNav />
       <StreaksModal open={streaksOpen} onClose={closeStreaks} onClaim={(xp) => store.addXp(xp)} />
-      {!onboarded && <Onboarding onDone={finishOnboarding} />}
+      {showOnboarding && <Onboarding onDone={finishOnboarding} />}
     </div>
   );
 }
 
 export default function App() {
-  // Pop-up auto-opens at most once per day; always available via the header pill.
-  const [streaksOpen, setStreaksOpen] = useState(() => !store.seenStreaksToday);
-  const [onboarded, setOnboarded] = useState(() => {
-    try {
-      return localStorage.getItem("member-onboarded") === "1";
-    } catch {
-      return true;
-    }
-  });
+  // Nothing auto-opens on load: the main screen always renders first.
+  // Streaks open from the header pill; onboarding from Account > How it works.
+  const [streaksOpen, setStreaksOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  useEffect(() => {
+    const open = () => setShowOnboarding(true);
+    window.addEventListener("member-onboarding-open", open);
+    return () => window.removeEventListener("member-onboarding-open", open);
+  }, []);
   const finishOnboarding = () => {
     try {
       localStorage.setItem("member-onboarded", "1");
     } catch {}
-    setOnboarded(true);
+    setShowOnboarding(false);
   };
   const closeStreaks = () => {
     store.markStreaksSeen();
@@ -104,7 +104,7 @@ export default function App() {
       <Shell
         streaksOpen={streaksOpen}
         closeStreaks={closeStreaks}
-        onboarded={onboarded}
+        showOnboarding={showOnboarding}
         finishOnboarding={finishOnboarding}
         openStreaks={() => setStreaksOpen(true)}
       />

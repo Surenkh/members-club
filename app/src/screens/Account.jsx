@@ -46,6 +46,11 @@ export default function Account() {
             <span className="ms text-faint">chevron_right</span>
           </Link>
         ))}
+        <button onClick={() => window.dispatchEvent(new CustomEvent("member-onboarding-open"))} className="flex w-full items-center gap-3.5 rounded-xl border border-hairline-soft bg-card px-4 py-4 text-left active:scale-[0.99]">
+          <span className="ms text-muted">help</span>
+          <span className="flex-1 text-sm font-semibold text-fg">How it works</span>
+          <span className="ms text-faint">chevron_right</span>
+        </button>
         <button onClick={() => setConcierge(true)} className="flex w-full items-center gap-3.5 rounded-xl border border-hairline-soft bg-card px-4 py-4 text-left active:scale-[0.99]">
           <span className="ms text-muted">support_agent</span>
           <span className="flex-1 text-sm font-semibold text-fg">Concierge</span>
