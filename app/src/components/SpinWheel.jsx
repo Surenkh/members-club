@@ -1,26 +1,25 @@
 import { useRef, useState } from "react";
 
 // Casino reference styling (user-supplied image): dark metallic rim with purple
-// LED dots, gold pointer, saturated jewel segments, neon-ringed SPIN hub.
-// Segment ORDER matches the reference clockwise from the top. Prize mapping
-// preserves the Stitch outcome set 1:1 (5 XP amounts, 3x $10 cash, 2x retry
-// rendered as ONE MORE SPIN, 2x no-win rendered as LOSE).
+// LED dots, cream pointer, neon-ringed SPIN hub. Segments are colour-only now:
+// twelve unique jewel gradients, no two identical colours beside each other
+// (including the wrap), so wedges stay legible without icons. Prize mapping
+// preserves the Stitch outcome set 1:1 (5 XP amounts, 3x $10 cash, 2x retry,
+// 2x no-win).
 const SLICES = [
-  { label: ["XP"], icon: "bolt", type: "xp", value: 50, color: "url(#segPurple)" },
-  { label: ["$"], icon: "paid", type: "cash", value: 10, color: "url(#segGreen)" },
-  { label: ["LOSE"], icon: "close", type: "none", color: "url(#segDark)" },
-  { label: ["XP"], icon: "bolt", type: "xp", value: 100, color: "url(#segPurple)" },
-  { label: ["ONE", "MORE SPIN"], icon: "refresh", type: "retry", color: "url(#segBlue)" },
-  { label: ["XP"], icon: "bolt", type: "xp", value: 150, color: "url(#segPurple)" },
-  { label: ["$"], icon: "paid", type: "cash", value: 10, color: "url(#segGreen)" },
-  { label: ["LOSE"], icon: "close", type: "none", color: "url(#segDark)" },
-  { label: ["XP"], icon: "bolt", type: "xp", value: 200, color: "url(#segPurple)" },
-  { label: ["ONE", "MORE SPIN"], icon: "refresh", type: "retry", color: "url(#segBlue)" },
-  { label: ["$"], icon: "paid", type: "cash", value: 10, color: "url(#segGreen)" },
-  { label: ["XP"], icon: "bolt", type: "xp", value: 75, color: "url(#segPurple)" },
+  { label: ["XP"], type: "xp", value: 50, color: "url(#segViolet)" },
+  { label: ["$"], type: "cash", value: 10, color: "url(#segEmerald)" },
+  { label: ["XP"], type: "xp", value: 100, color: "url(#segIndigo)" },
+  { label: ["ONE", "MORE SPIN"], type: "retry", color: "url(#segSky)" },
+  { label: ["XP"], type: "xp", value: 150, color: "url(#segOrchid)" },
+  { label: ["LOSE"], type: "none", color: "url(#segCharcoal)" },
+  { label: ["$"], type: "cash", value: 10, color: "url(#segJade)" },
+  { label: ["XP"], type: "xp", value: 200, color: "url(#segAmethyst)" },
+  { label: ["$"], type: "cash", value: 10, color: "url(#segForest)" },
+  { label: ["ONE", "MORE SPIN"], type: "retry", color: "url(#segSteel)" },
+  { label: ["XP"], type: "xp", value: 75, color: "url(#segPlum)" },
+  { label: ["LOSE"], type: "none", color: "url(#segGraphite)" },
 ];
-
-const ICON_FILL = { bolt: "#e9d5ff", paid: "#ffd75e", close: "#f1f2f6", refresh: "#d7e9ff" };
 
 const SIZE = 320;
 
@@ -84,35 +83,71 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
               <stop offset="80%" stopColor="#101218" />
               <stop offset="100%" stopColor="#05060a" />
             </radialGradient>
-            <radialGradient id="segPurple" cx="50%" cy="30%" r="90%">
+            {/* twelve unique wedge colours; order is chosen so no two alike
+                gradients sit beside each other, including the wrap seam */}
+            <radialGradient id="segViolet" cx="50%" cy="30%" r="90%">
               <stop offset="0%" stopColor="#8b3ff5" />
               <stop offset="60%" stopColor="#5b1ec4" />
               <stop offset="100%" stopColor="#2e0a63" />
             </radialGradient>
-            <radialGradient id="segGreen" cx="50%" cy="30%" r="90%">
+            <radialGradient id="segIndigo" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#6d5cff" />
+              <stop offset="60%" stopColor="#3b2bb8" />
+              <stop offset="100%" stopColor="#171055" />
+            </radialGradient>
+            <radialGradient id="segOrchid" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#b44dff" />
+              <stop offset="60%" stopColor="#7a1fd6" />
+              <stop offset="100%" stopColor="#3a0a70" />
+            </radialGradient>
+            <radialGradient id="segAmethyst" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#d13cff" />
+              <stop offset="60%" stopColor="#8e13b8" />
+              <stop offset="100%" stopColor="#3f0754" />
+            </radialGradient>
+            <radialGradient id="segPlum" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#7a2fd6" />
+              <stop offset="60%" stopColor="#4a1696" />
+              <stop offset="100%" stopColor="#1d0642" />
+            </radialGradient>
+            <radialGradient id="segEmerald" cx="50%" cy="30%" r="90%">
               <stop offset="0%" stopColor="#17b978" />
               <stop offset="60%" stopColor="#0a7a4e" />
               <stop offset="100%" stopColor="#033a26" />
             </radialGradient>
-            <radialGradient id="segDark" cx="50%" cy="30%" r="90%">
+            <radialGradient id="segJade" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#10c9a0" />
+              <stop offset="60%" stopColor="#07836a" />
+              <stop offset="100%" stopColor="#023328" />
+            </radialGradient>
+            <radialGradient id="segForest" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#4aa832" />
+              <stop offset="60%" stopColor="#25641b" />
+              <stop offset="100%" stopColor="#0c2a0a" />
+            </radialGradient>
+            <radialGradient id="segSky" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#1fa2ff" />
+              <stop offset="60%" stopColor="#0e63c2" />
+              <stop offset="100%" stopColor="#062a4f" />
+            </radialGradient>
+            <radialGradient id="segSteel" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#1e88c9" />
+              <stop offset="60%" stopColor="#125f8f" />
+              <stop offset="100%" stopColor="#052a40" />
+            </radialGradient>
+            <radialGradient id="segCharcoal" cx="50%" cy="30%" r="90%">
               <stop offset="0%" stopColor="#333945" />
               <stop offset="60%" stopColor="#1b1e25" />
               <stop offset="100%" stopColor="#0c0e12" />
             </radialGradient>
-            <radialGradient id="segBlue" cx="50%" cy="30%" r="90%">
-              <stop offset="0%" stopColor="#2f7bff" />
-              <stop offset="60%" stopColor="#12479f" />
-              <stop offset="100%" stopColor="#071c48" />
+            <radialGradient id="segGraphite" cx="50%" cy="30%" r="90%">
+              <stop offset="0%" stopColor="#3d4657" />
+              <stop offset="60%" stopColor="#212836" />
+              <stop offset="100%" stopColor="#0b0f19" />
             </radialGradient>
             <radialGradient id="hubDark" cx="50%" cy="35%" r="80%">
               <stop offset="0%" stopColor="#2c2c34" />
               <stop offset="100%" stopColor="#0a0a0e" />
-            </radialGradient>
-            <radialGradient id="coinGold" cx="38%" cy="32%" r="85%">
-              <stop offset="0%" stopColor="#ffedb0" />
-              <stop offset="45%" stopColor="#f7bd45" />
-              <stop offset="80%" stopColor="#c07f10" />
-              <stop offset="100%" stopColor="#7a4a00" />
             </radialGradient>
             <radialGradient id="gloss" cx="50%" cy="12%" r="65%">
               <stop offset="0%" stopColor="#ffffff" stopOpacity="0.28" />
@@ -171,10 +206,6 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
               const a1 = a0 + seg;
               const [x0, y0] = polar(a0, SEG_R);
               const [x1, y1] = polar(a1, SEG_R);
-              const mid = a0 + seg / 2;
-              // Icons only: centered in each slice at mid-radius, all on one
-              // radius so they sit right per the reference wheel.
-              const [ix, iy] = polar(mid, 100);
               return (
                 <g key={i}>
                   <path
@@ -184,36 +215,6 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
                     strokeWidth="1.2"
                     strokeOpacity="0.85"
                   />
-                  {s.type === "cash" ? (
-                    <g>
-                      <circle cx={ix} cy={iy} r="17" fill="url(#coinGold)" stroke="#7a4a00" strokeWidth="1.5" />
-                      <circle cx={ix} cy={iy} r="12.5" fill="none" stroke="#a86e00" strokeWidth="1.5" strokeOpacity="0.8" />
-                      <text
-                        x={ix}
-                        y={iy + 1}
-                        fill="#6b3d00"
-                        fontSize="20"
-                        fontWeight="800"
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                      >
-                        $
-                      </text>
-                    </g>
-                  ) : (
-                    <text
-                      x={ix}
-                      y={iy}
-                      fill={ICON_FILL[s.icon]}
-                      fontSize="34"
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      style={{ fontFamily: "'Material Symbols Outlined'" }}
-                    >
-                      {s.icon}
-                    </text>
-                  )}
                 </g>
               );
             })}
