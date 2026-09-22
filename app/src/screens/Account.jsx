@@ -5,9 +5,11 @@ import { store } from "../lib/store";
 import { getMembership, statusMeta, PLANS } from "../lib/membership";
 import Chip from "../components/Chip";
 import DemoControls from "../components/DemoControls";
+import ConciergeChat from "../components/ConciergeChat";
 
 export default function Account() {
   const [demo, setDemo] = useState(false);
+  const [concierge, setConcierge] = useState(false);
   const [, bump] = useState(0);
   const m = getMembership();
   const plan = PLANS.find((p) => p.id === m.plan);
@@ -15,13 +17,11 @@ export default function Account() {
   const profile = store.profile;
 
   const rows = [
-    ["badge", "Membership & tier", "/account/subscription"],
-    ["receipt_long", "Billing & subscription", "/account/subscription"],
+    ["badge", "Membership & billing", "/account/subscription"],
     ["confirmation_number", "My Tickets", "/account/tickets"],
     ["redeem", "My Discounts", "/account/discounts"],
     ["military_tech", "Reward Points", "/account/points"],
     ["person", "Account details", "/account/details"],
-    ["support_agent", "Concierge", "/account"],
   ];
 
   return (
@@ -46,6 +46,11 @@ export default function Account() {
             <span className="ms text-faint">chevron_right</span>
           </Link>
         ))}
+        <button onClick={() => setConcierge(true)} className="flex w-full items-center gap-3.5 rounded-xl border border-hairline-soft bg-card px-4 py-4 text-left active:scale-[0.99]">
+          <span className="ms text-muted">support_agent</span>
+          <span className="flex-1 text-sm font-semibold text-fg">Concierge</span>
+          <span className="ms text-faint">chevron_right</span>
+        </button>
         <button onClick={() => setDemo(true)} className="flex w-full items-center gap-3.5 rounded-xl border border-dashed border-hairline bg-card px-4 py-4 text-left active:scale-[0.99]">
           <span className="ms text-muted">tune</span>
           <span className="flex-1 text-sm font-semibold text-fg">Demo controls</span>
@@ -53,6 +58,7 @@ export default function Account() {
         </button>
       </div>
 
+      <ConciergeChat open={concierge} onClose={() => setConcierge(false)} />
       <DemoControls open={demo} onClose={() => { setDemo(false); bump((v) => v + 1); }} />
     </div>
   );

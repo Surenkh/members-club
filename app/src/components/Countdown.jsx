@@ -42,7 +42,7 @@ export function CountdownChip({ to }) {
   const m = Math.floor((diff % 3600000) / 60000);
   const s = Math.floor((diff % 60000) / 1000);
   return (
-    <span className="inline-flex items-center gap-1 rounded-lg border border-hairline bg-ink/60 px-2.5 py-1.5 text-[11px] font-bold tabular text-fg backdrop-blur">
+    <span className="liquid-glass inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-bold tabular text-fg">
       <span className="ms text-[14px] text-teal-pale">schedule</span>
       {pad(d)}D : {pad(h)}H : {pad(m)}M : {pad(s)}S
     </span>

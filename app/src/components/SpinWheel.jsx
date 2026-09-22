@@ -24,7 +24,7 @@ const ICON_FILL = { bolt: "#e9d5ff", paid: "#ffd75e", close: "#f1f2f6", refresh:
 
 const SIZE = 320;
 
-export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAction }) {
+export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAction, disabled = false, cooldown = null }) {
   const [rot, setRot] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
@@ -33,8 +33,9 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
   const seg = 360 / n;
 
   const spin = () => {
+    if (disabled) return;
     if (gated) {
-      onGate && onGate();
+      onGate?.();
       return;
     }
     if (spinning) return;
@@ -61,18 +62,18 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
   const leds = Array.from({ length: 16 });
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="spin-stagger flex flex-col items-center">
       <div className="relative" style={{ width: SIZE, height: SIZE }}>
-        {/* pointer */}
-        <div className="absolute left-1/2 top-[-10px] z-10 -translate-x-1/2">
-          <div className="h-0 w-0 border-l-[12px] border-r-[12px] border-t-[20px] border-l-transparent border-r-transparent border-t-gold drop-shadow-[0_2px_8px_rgba(251,191,36,0.65)]" />
+        {/* pointer: large cream triangle per reference */}
+        <div className="absolute left-1/2 top-[-14px] z-10 -translate-x-1/2">
+          <div className="h-0 w-0 border-l-[16px] border-r-[16px] border-t-[28px] border-l-transparent border-r-transparent border-t-[#f6e3b4] drop-shadow-[0_3px_12px_rgba(246,227,180,0.7)]" />
         </div>
         <svg
           ref={wheelRef}
           width={SIZE}
           height={SIZE}
           viewBox="0 0 320 320"
-          className="block"
+          className={`block transition duration-500 ${disabled ? "opacity-45 grayscale-[0.35]" : ""}`}
           role="img"
           aria-label="Prize wheel"
         >
@@ -106,6 +107,12 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
             <radialGradient id="hubDark" cx="50%" cy="35%" r="80%">
               <stop offset="0%" stopColor="#2c2c34" />
               <stop offset="100%" stopColor="#0a0a0e" />
+            </radialGradient>
+            <radialGradient id="coinGold" cx="38%" cy="32%" r="85%">
+              <stop offset="0%" stopColor="#ffedb0" />
+              <stop offset="45%" stopColor="#f7bd45" />
+              <stop offset="80%" stopColor="#c07f10" />
+              <stop offset="100%" stopColor="#7a4a00" />
             </radialGradient>
             <radialGradient id="gloss" cx="50%" cy="12%" r="65%">
               <stop offset="0%" stopColor="#ffffff" stopOpacity="0.28" />
@@ -148,6 +155,8 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
             );
           })}
           <circle cx={cx} cy={cy} r={SEG_R + 4} fill="none" stroke="#0a0b10" strokeWidth="5" />
+          {/* neon face ring per reference */}
+          <circle cx={cx} cy={cy} r={SEG_R - 1} fill="none" stroke="#c084fc" strokeWidth="2.5" filter="url(#neonGlow)" />
 
           {/* rotating face */}
           <g
@@ -163,10 +172,9 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
               const [x0, y0] = polar(a0, SEG_R);
               const [x1, y1] = polar(a1, SEG_R);
               const mid = a0 + seg / 2;
-              const [ix, iy] = polar(mid, 106);
-              const [tx, ty] = polar(mid, 88);
-              const fs = s.label.length > 1 ? 10 : 14;
-              const gap = s.label.length > 1 ? 11 : 15;
+              // Icons only: centered in each slice at mid-radius, all on one
+              // radius so they sit right per the reference wheel.
+              const [ix, iy] = polar(mid, 100);
               return (
                 <g key={i}>
                   <path
@@ -176,34 +184,36 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
                     strokeWidth="1.2"
                     strokeOpacity="0.85"
                   />
-                  <text
-                    x={ix}
-                    y={iy}
-                    fill={ICON_FILL[s.icon]}
-                    fontSize="28"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    style={{ fontFamily: "'Material Symbols Outlined'" }}
-                  >
-                    {s.icon}
-                  </text>
-                  {s.label.map((line, li) => (
+                  {s.type === "cash" ? (
+                    <g>
+                      <circle cx={ix} cy={iy} r="17" fill="url(#coinGold)" stroke="#7a4a00" strokeWidth="1.5" />
+                      <circle cx={ix} cy={iy} r="12.5" fill="none" stroke="#a86e00" strokeWidth="1.5" strokeOpacity="0.8" />
+                      <text
+                        x={ix}
+                        y={iy + 1}
+                        fill="#6b3d00"
+                        fontSize="20"
+                        fontWeight="800"
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                      >
+                        $
+                      </text>
+                    </g>
+                  ) : (
                     <text
-                      key={li}
-                      x={tx}
-                      y={ty + (li - (s.label.length - 1) / 2) * gap}
-                      fill="#ffffff"
-                      fontSize={fs}
-                      fontWeight="800"
-                      letterSpacing="0.5"
+                      x={ix}
+                      y={iy}
+                      fill={ICON_FILL[s.icon]}
+                      fontSize="34"
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      transform={`rotate(${mid} ${tx} ${ty})`}
-                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                      style={{ fontFamily: "'Material Symbols Outlined'" }}
                     >
-                      {line}
+                      {s.icon}
                     </text>
-                  ))}
+                  )}
                 </g>
               );
             })}
@@ -234,20 +244,20 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
         </svg>
       </div>
 
-      <p className="mt-5 flex items-center gap-1.5 text-[12px] font-semibold text-teal-pale">
+      <p className={`mt-4 flex items-center justify-center gap-1.5 text-[12px] font-semibold tabular ${disabled ? "text-muted" : "text-teal-pale"}`}>
         <span className="ms fill text-[15px]">stars</span>
-        1 Free Daily Spin Ready! (12 Prizes)
+        {disabled ? `Next spin available in ${cooldown}` : "1 Free Daily Spin Ready! (12 Prizes)"}
       </p>
       <button
         onClick={spin}
-        disabled={spinning}
-        className={`${hideButton ? "hidden" : ""} mt-3 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white shadow-[var(--shadow-card)] transition hover:bg-indigo-bright active:scale-[0.98] disabled:opacity-60`}
+        disabled={spinning || disabled}
+        className={`${hideButton ? "hidden" : ""} liquid-press mt-3 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white shadow-[var(--shadow-card)] hover:bg-indigo-bright disabled:opacity-60`}
       >
-        {spinning ? "Spinning the prize wheel..." : "Spin Wheel"}
+        {spinning ? "Spinning the prize wheel..." : disabled ? "Spin used today" : "Spin Wheel"}
       </button>
 
       {result && (
-        <div className="mt-3 w-full rounded-xl border border-gold/40 bg-gold/10 px-4 py-3">
+        <div className="result-in mt-3 w-full rounded-xl border border-gold/40 bg-gold/10 px-4 py-3">
           <div className="flex items-center gap-3">
             <span className="ms fill text-[24px] text-gold">
               {result.type === "xp" ? "military_tech" : result.type === "cash" ? "payments" : result.type === "retry" ? "refresh" : "info"}
@@ -260,7 +270,7 @@ export default function SpinWheel({ onResult, gated, onGate, hideButton, claimAc
           </p>
           </div>
           {claimAction && (result.type === "xp" || result.type === "cash") && (
-            <button onClick={() => claimAction(result)} className="mt-3 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white active:scale-[0.98]">
+            <button onClick={() => claimAction(result)} className="liquid-press mt-3 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white">
               Claim prize
             </button>
           )}

@@ -174,11 +174,14 @@ export function statusMeta(status) {
 export function resetDemo() {
   ["member-streak-seen", "member-xp-bonus", "member-claims", "member-saved", "member-points",
    "member-spins", "member-tickets", "member-reserved", "member-billing", "member-profile",
-   KEY,
+   "member-streak", "member-activations", "member-onboarded", KEY,
   ].forEach((k) => {
     try {
       localStorage.removeItem(k);
     } catch {}
   });
+  try {
+    sessionStorage.clear();
+  } catch {}
   window.dispatchEvent(new CustomEvent("membership-changed"));
 }

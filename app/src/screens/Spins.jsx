@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SpinWheel from "../components/SpinWheel";
 import Modal from "../components/Modal";
 import Toast from "../components/Toast";
@@ -33,45 +33,58 @@ export default function Spins() {
     if (r.type === "cash") store.addPoints(r.value);
     store.setLastSpin({ label: Array.isArray(r.label) ? r.label.join(" ") : r.label, type: r.type, value: r.value || 0 });
     bump((v) => v + 1);
-    setToast({ message: `${Array.isArray(r.label) ? r.label.join(" ") : r.label} won` });
+    setToast({
+      message:
+        r.type === "xp" ? `+${r.value} XP added`
+        : r.type === "cash" ? `$${r.value} cash added`
+        : r.type === "retry" ? "One more spin"
+        : "No win this time",
+    });
+  };
+
+  const close = () => {
+    if (!info) navigate("/");
   };
 
   return (
-    <div className="px-4 pt-2 pb-4">
+    <>
+    <Modal open={true} onClose={close} labelledBy="spin-title">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link to="/" aria-label="Back" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-hairline bg-card text-fg">
-            <span className="ms">arrow_back</span>
-          </Link>
-          <div>
-            <h1 className="font-display text-[22px] font-bold tracking-tight text-fg">Daily Spin</h1>
-            <p className="text-[12px] text-muted">One spin per daily cycle</p>
-          </div>
+        <span className="rounded-full border border-teal/40 bg-teal-soft px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-teal-pale">
+          Daily Fortune Wheel
+        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <button onClick={() => setInfo(true)} aria-label="How spins work" className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-muted">
+            <span className="ms">info</span>
+          </button>
+          <button onClick={close} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-faint">
+            <span className="ms">close</span>
+          </button>
         </div>
-        <button onClick={() => setInfo(true)} aria-label="How spins work" className="flex h-10 w-10 items-center justify-center rounded-full border border-hairline bg-card text-muted">
-          <span className="ms">info</span>
-        </button>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-hairline bg-card p-5">
+      <div className="mt-3 flex items-center gap-2.5">
+        <span className="ms fill text-[30px] text-gold">casino</span>
+        <h1 id="spin-title" className="font-display text-[22px] font-bold tracking-tight text-fg">Daily Spin</h1>
+      </div>
+      <p className="mt-1 text-[12px] text-muted">One spin per daily cycle</p>
+
+       <div className="mt-4 text-center">
         {active ? (
-          used ? (
-            <div className="flex flex-col items-center py-6 text-center">
-              <span className="ms fill text-[34px] text-teal-pale">check_circle</span>
-              <p className="mt-2 text-sm font-bold text-fg">Today&apos;s spin is used</p>
-              <p className="mt-1 text-[12px] text-muted">Next spin in <span className="font-bold tabular text-fg">{hh}:{mm}:{ss}</span></p>
-              {store.lastSpin && <p className="mt-1 text-[11px] text-muted">Last result: {store.lastSpin.result?.label}</p>}
-            </div>
-          ) : (
-            <SpinWheel onResult={onResult} />
-          )
+          <div className="rounded-2xl border border-hairline bg-card p-4">
+            <SpinWheel disabled={used} cooldown={used ? `${hh}:${mm}:${ss}` : null} onResult={onResult} />
+          </div>
         ) : (
           <div className="flex flex-col items-center py-4 text-center">
-            <SpinWheel claimAction={() => setPaywall(true)} onResult={() => {}} />
+            <div className="w-full rounded-2xl border border-hairline bg-card p-4">
+              <SpinWheel claimAction={() => setPaywall(true)} onResult={() => {}} />
+            </div>
             <p className="mt-3 max-w-[260px] text-[12px] text-muted">Spin to reveal a prize, then claim it as a member.</p>
           </div>
         )}
+        {active && used && store.lastSpin && <p className="mt-2.5 text-center text-[11px] text-muted tabular">Last result: {store.lastSpin.result?.label}</p>}
       </div>
+    </Modal>
 
       <Modal open={info} onClose={() => setInfo(false)} labelledBy="spin-info">
         <div className="flex items-center justify-between">
@@ -82,7 +95,7 @@ export default function Spins() {
         </div>
         <div className="mt-3 space-y-2 text-[13px] leading-relaxed text-muted">
           <p>One spin per daily cycle. Rewards are XP, Credits, competition entries, or no prize.</p>
-          <p>The Home wheel and this page share one attempt and one cooldown.</p>
+          <p>The Home wheel and Daily Spin share one attempt and one cooldown.</p>
           <p>Reading or closing this sheet never starts a spin.</p>
         </div>
         <button onClick={() => setInfo(false)} className="mt-4 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white">Got it</button>
@@ -90,6 +103,6 @@ export default function Spins() {
 
       <PaywallSheet open={paywall} onClose={() => setPaywall(false)} onPlans={() => navigate("/plans", { state: { from: "/spins" } })} reason="spin" />
       <Toast message={toast?.message} action={toast?.action} open={!!toast} onDone={() => setToast(null)} />
-    </div>
+    </>
   );
 }

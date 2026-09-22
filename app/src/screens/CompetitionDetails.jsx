@@ -20,9 +20,10 @@ export default function CompetitionDetails() {
   const target = drawTarget(c.id);
   const memberState = getMembership();
   const eligible = memberState.status === "active" || memberState.status === "cancelled";
-  const purchasable = eligible && c.status === "active" && c.bundles.length > 0;
   const [bundle, setBundle] = useState(c.bundles[1] || c.bundles[0] || null);
   const [custom, setCustom] = useState(c.customDefault || 0);
+  const [customSelected, setCustomSelected] = useState(false);
+  const [showCustomPicker, setShowCustomPicker] = useState(false);
   const [faq, setFaq] = useState(-1);
   const [showTickets, setShowTickets] = useState(false);
   const [ticketsOpen, setTicketsOpen] = useState(false);
@@ -32,9 +33,14 @@ export default function CompetitionDetails() {
   const [paywall, setPaywall] = useState(false);
   const [toast, setToast] = useState("");
 
-  const totalEntries = bundle ? bundle.entries + bundle.bonus : 0;
-  const price = bundle ? bundle.price : 0;
+  const totalEntries = customSelected ? custom : bundle ? bundle.entries + bundle.bonus : 0;
+  const price = customSelected ? custom * (c.customPrice || 0) : bundle ? bundle.price : 0;
   const customTotal = (custom * (c.customPrice || 0)).toFixed(custom % 1 ? 2 : 0);
+
+  const selectCustom = (amount) => {
+    setCustom(Math.max(5, amount));
+    setCustomSelected(true);
+  };
 
   const beginPurchase = () => {
     if (!eligible) {
@@ -57,7 +63,7 @@ export default function CompetitionDetails() {
         competitionId: c.id,
         title: c.detailsTitle,
         entries: totalEntries,
-        source: "Purchased bundle",
+        source: customSelected ? "Custom entries" : "Purchased bundle",
         date: new Date().toISOString().slice(0, 10),
         order: `MB-${String(Math.floor(100000 + Math.random() * 900000))}`,
       });
@@ -181,9 +187,9 @@ export default function CompetitionDetails() {
               {c.bundles.map((b, i) => (
                 <button
                   key={i}
-                  onClick={() => setBundle(b)}
+                   onClick={() => { setBundle(b); setCustomSelected(false); }}
                   className={`relative flex w-full items-center justify-between rounded-2xl border p-4 text-left transition active:scale-[0.99] ${
-                    bundle === b ? "border-indigo-bright bg-indigo-soft" : "border-hairline bg-card"
+                     !customSelected && bundle === b ? "border-indigo-bright bg-indigo-soft" : "border-hairline bg-card"
                   }`}
                 >
                   {b.label && (
@@ -197,24 +203,24 @@ export default function CompetitionDetails() {
                   </div>
                   <div className="flex items-center gap-2.5">
                     <span className="font-display text-lg font-bold tabular text-fg">${b.price}</span>
-                    <span className={`flex h-5 w-5 items-center justify-center rounded-full border ${bundle === b ? "border-indigo-bright bg-indigo" : "border-hairline"}`}>
-                      {bundle === b && <span className="ms text-[13px] text-white">check</span>}
+                     <span className={`flex h-5 w-5 items-center justify-center rounded-full border ${!customSelected && bundle === b ? "border-indigo-bright bg-indigo" : "border-hairline"}`}>
+                       {!customSelected && bundle === b && <span className="ms text-[13px] text-white">check</span>}
                     </span>
                   </div>
                 </button>
               ))}
               {/* Custom */}
-              <div className="rounded-2xl border border-hairline bg-card p-4">
+               <div className={`rounded-2xl border p-4 ${customSelected ? "border-indigo-bright bg-indigo-soft" : "border-hairline bg-card"}`}>
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-fg">Custom</p>
                     <p className="mt-0.5 text-[11px] text-muted tabular">${c.customPrice.toFixed(2)} per entry</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
-                    <button onClick={() => setCustom(Math.max(0, custom - 5))} aria-label="Fewer entries" className="h-9 w-9 rounded-lg border border-hairline bg-card-2 text-lg font-bold text-fg">-</button>
-                    <span className="w-12 text-center font-display text-base font-bold tabular text-fg">{custom}</span>
-                    <button title="Surprise me" onClick={() => setCustom(5 * (1 + Math.floor(Math.random() * 20)))} aria-label="Surprise me" className="flex h-9 w-9 items-center justify-center rounded-lg border border-hairline bg-card-2 text-fg"><span className="ms text-[18px]">casino</span></button>
-                    <button onClick={() => setCustom(custom + 5)} aria-label="More entries" className="h-9 w-9 rounded-lg border border-hairline bg-card-2 text-lg font-bold text-fg">+</button>
+                    <button onClick={() => selectCustom(Math.max(5, custom - 5))} aria-label="Fewer entries" className="h-9 w-9 rounded-lg border border-hairline bg-card-2 text-lg font-bold text-fg">-</button>
+                    <button onClick={() => setShowCustomPicker(true)} aria-label="Choose custom entries" className="min-w-14 rounded-lg border border-indigo/50 bg-card-2 px-2 py-2 text-center font-display text-base font-bold tabular text-fg">{custom}</button>
+                    <button title="Surprise me" onClick={() => selectCustom(5 * (1 + Math.floor(Math.random() * 20)))} aria-label="Surprise me" className="flex h-9 w-9 items-center justify-center rounded-lg border border-hairline bg-card-2 text-fg"><span className="ms text-[18px]">casino</span></button>
+                    <button onClick={() => selectCustom(custom + 5)} aria-label="More entries" className="h-9 w-9 rounded-lg border border-hairline bg-card-2 text-lg font-bold text-fg">+</button>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="text-[10px] text-muted">entries</p>
@@ -253,7 +259,7 @@ export default function CompetitionDetails() {
                 <div key={g} className="relative w-44 shrink-0 snap-start overflow-hidden rounded-xl border border-hairline">
                   <img src={`/assets/${g}`} alt={`${c.detailsTitle} inspection ${i + 1}`} className="h-28 w-full object-cover" />
                   {i < GALLERY_LABELS.length && (
-                    <span className="absolute bottom-2 left-2 rounded-md bg-ink/65 px-2 py-1 text-[10px] font-bold text-fg backdrop-blur">{GALLERY_LABELS[i]}</span>
+                    <span className="liquid-glass absolute bottom-2 left-2 rounded-md px-2 py-1 text-[10px] font-bold text-fg">{GALLERY_LABELS[i]}</span>
                   )}
                 </div>
               ))}
@@ -282,9 +288,9 @@ export default function CompetitionDetails() {
 
       {/* Sticky bar */}
       {bundle && c.status === "active" && (
-        <div className="fixed bottom-[76px] inset-x-0 z-30">
+        <div className="fixed bottom-24 inset-x-0 z-30">
           <div className="mx-auto max-w-md px-4">
-            <div className="flex items-center justify-between rounded-2xl border border-hairline bg-card-2/95 px-4 py-3 backdrop-blur" style={{ boxShadow: "var(--shadow-bar)" }}>
+            <div className="liquid-glass-strong flex items-center justify-between rounded-2xl px-4 py-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted">Total Due</p>
                 <p className="font-display text-lg font-bold tabular text-fg">${price} <span className="text-[11px] font-semibold text-teal-pale">{totalEntries} entries</span></p>
@@ -303,6 +309,37 @@ export default function CompetitionDetails() {
           </div>
         </div>
       )}
+
+      <Modal open={showCustomPicker} onClose={() => setShowCustomPicker(false)} labelledBy="custom-entries-title">
+        <div>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-teal-pale">Custom allocation</p>
+              <h3 id="custom-entries-title" className="mt-1 text-lg font-bold text-fg">Choose your entries</h3>
+            </div>
+            <button onClick={() => setShowCustomPicker(false)} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-faint"><span className="ms">close</span></button>
+          </div>
+          <label className="mt-4 block rounded-2xl border border-indigo/50 bg-indigo-soft p-4">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Number of entries</span>
+            <input
+              type="number"
+              min="5"
+              step="5"
+              value={custom}
+              onChange={(event) => setCustom(Math.max(5, Number(event.target.value) || 5))}
+              className="mt-2 w-full bg-transparent font-display text-3xl font-bold tabular text-fg outline-none"
+              autoFocus
+            />
+            <span className="mt-1 block text-[12px] text-muted">${c.customPrice.toFixed(2)} per entry · ${customTotal} total</span>
+          </label>
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {[25, 50, 100, 200].map((amount) => (
+              <button key={amount} onClick={() => setCustom(amount)} className="rounded-xl border border-hairline bg-card py-2.5 text-[12px] font-bold tabular text-fg active:scale-[0.98]">{amount}</button>
+            ))}
+          </div>
+          <button onClick={() => { setCustomSelected(true); setShowCustomPicker(false); }} className="mt-4 w-full rounded-xl bg-cta py-3.5 text-sm font-bold text-white active:scale-[0.98]">Use {custom} entries</button>
+        </div>
+      </Modal>
 
       {/* Tickets modal */}
       <Modal open={showTickets} onClose={() => setShowTickets(false)} labelledBy="tickets-title">

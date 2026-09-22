@@ -68,7 +68,7 @@ export default function Competitions() {
           </div>
         )}
         {list.map((c) => (
-          <div key={c.id} className="overflow-hidden rounded-2xl border border-hairline bg-card">
+          <div key={c.id} className="motion-card overflow-hidden rounded-2xl border border-hairline bg-card">
             {c.status === "ended" ? (
               <div className="p-4">
                 <div className="flex items-center gap-2">
@@ -103,35 +103,19 @@ export default function Competitions() {
                     </div>
                   ) : null}
                   <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center gap-1.5">
-                    <span className="rounded-md bg-ink/60 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-teal-pale backdrop-blur">{c.badge}</span>
+                    <span className="liquid-glass rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-teal-pale">{c.badge}</span>
                     {c.tierChip ? (
-                      <span className="rounded-md bg-ink/60 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-gold backdrop-blur">{c.tierChip}</span>
+                      <span className="liquid-glass rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-gold">{c.tierChip}</span>
                     ) : null}
                   </div>
                 </div>
                 <div className="p-4">
-                  <p className="text-[15px] font-bold text-fg">{c.title}{c.titleSuffix ? ` ${c.titleSuffix}` : ""}</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-muted">{c.subtitle}</p>
-                  {subscribed && c.autoAllocated ? (
-                    <div className="mt-3 space-y-1.5">
-                      <div className="flex items-center justify-between rounded-xl border border-hairline-soft bg-card-2 px-3.5 py-2.5">
-                        <span className="flex items-center gap-1.5 text-[12px] font-semibold text-muted">
-                          <span className="ms text-[16px]">settings</span> Your Current Entries
-                        </span>
-                        <span className="text-[12px] font-bold tabular text-fg">{c.autoAllocated} Auto-Allocated</span>
-                      </div>
-                      {c.multiplier && (
-                        <div className="flex items-center justify-between px-1 text-[11px] text-muted">
-                          <span>Tier Multiplier: <span className="font-bold text-teal-pale">{c.multiplier} Boost Active</span></span>
-                          {c.odds && <span>Draw Odds: <span className="font-bold tabular text-fg">1 in {c.odds.split(" ").pop()}</span></span>}
-                        </div>
-                      )}
-                    </div>
-                  ) : null}
-                  {subscribed && c.autoEntries ? (
-                    <div className="mt-3 flex items-center justify-between rounded-xl border border-hairline-soft bg-card-2 px-3.5 py-2.5">
-                      <span className="text-[12px] font-semibold text-muted">Entry Status</span>
-                      <span className="text-[12px] font-bold tabular text-fg">{c.yourEntries} Entries Active</span>
+                  <p className="min-h-[40px] text-[15px] font-bold leading-snug text-fg">{c.title}{c.titleSuffix ? ` ${c.titleSuffix}` : ""}</p>
+                  <p className="mt-0.5 min-h-[32px] text-xs leading-relaxed text-muted">{c.subtitle}</p>
+                  {subscribed ? (
+                    <div className="depth-card mt-3 flex items-center justify-between rounded-xl border border-teal/35 bg-gradient-to-r from-teal-soft/50 to-card-2 px-3.5 py-3">
+                      <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-teal-pale"><span className="ms text-[17px]">confirmation_number</span> Your entries</span>
+                      <span className="font-display text-xl font-bold tabular text-fg">{c.yourEntries ?? c.autoAllocated ?? c.autoEntries ?? 0} <span className="font-sans text-[10px] uppercase tracking-widest text-muted">active</span></span>
                     </div>
                   ) : null}
                   {!subscribed && c.status !== "ended" ? (
@@ -140,11 +124,10 @@ export default function Competitions() {
                       <span className="text-[12px] font-bold text-indigo-bright">View plans</span>
                     </Link>
                   ) : null}
-                  <Link to={`/competitions/${c.id}`} className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-cta py-3 text-sm font-bold text-white active:scale-[0.98]">
-                    {c.cta === "View Competition" ? null : <span className="ms text-[18px]">add_circle</span>}
-                    {c.cta}
-                    {c.cta === "View Competition" ? <span className="ms text-[18px]">arrow_forward</span> : null}
-                  </Link>
+                   <Link to={`/competitions/${c.id}`} className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-cta py-3.5 text-sm font-bold text-white shadow-[var(--shadow-card)] active:scale-[0.98]">
+                     {c.status === "ended" ? <span className="ms text-[18px]">arrow_forward</span> : null}
+                     {c.status === "ended" ? c.cta : "Add Entries"}
+                   </Link>
                 </div>
               </>
             )}

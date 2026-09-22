@@ -1,14 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import lb from "../data/leaderboard.json";
 import Modal from "../components/Modal";
-import SpinWheel from "../components/SpinWheel";
-import Toast from "../components/Toast";
-import { store } from "../lib/store";
-import { getMembership } from "../lib/membership";
+import { nextSunday2100UTC, useNow } from "../lib/time";
 
-const PERIODS = ["Weekly", "Championship"];
-const key = { Weekly: "weekly", Championship: "championship" };
+const PERIODS = ["Weekly", "Quarterly"];
+const key = { Weekly: "weekly", Quarterly: "quarterly" };
 
 function Podium({ rows }) {
   const [second, first, third] = [rows[1], rows[0], rows[2]];
@@ -34,33 +31,38 @@ function Podium({ rows }) {
 }
 
 export default function Leaderboard() {
-  const navigate = useNavigate();
   const [period, setPeriod] = useState("Weekly");
   const [info, setInfo] = useState(false);
-  const [boost, setBoost] = useState(false);
-  const [toast, setToast] = useState(null);
   const rows = lb[key[period]] || lb.weekly;
   const rest = rows.slice(3);
-  const you = lb.you;
-  const memberState = getMembership();
-  const hasHistory = store.xpBonus > 0 || store.tickets.length > 0 || store.claims.size > 0;
-  const showPersonal = memberState.status === "active" || memberState.status === "cancelled" || memberState.status === "retry" || memberState.status === "semi" || hasHistory;
-  const cycleLine = period === "Championship" ? lb.championshipLine : lb.resetLine;
-  const handleBoostResult = (r) => {
-    if (r.type === "xp") store.addXp(r.value);
-    if (r.type === "xp" || r.type === "cash") {
-      setToast({ message: `${Array.isArray(r.label) ? r.label.join(" ") : r.label} won`, action: { label: "View board", to: "/leaderboard" } });
-    }
-  };
+  const now = useNow(1000);
+  const nextReset = nextSunday2100UTC(new Date(now));
+  const diff = Math.max(0, nextReset.getTime() - now);
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
+  const countdown = `${String(days).padStart(2, "0")}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`;
 
   return (
     <div className="px-4 pt-2 pb-4">
+      <div className="mb-4 flex items-center gap-3">
+        <Link to="/" aria-label="Back" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-hairline bg-card text-fg">
+          <span className="ms">arrow_back</span>
+        </Link>
+        <div>
+          <h1 className="font-display text-[22px] font-bold tracking-tight text-fg">Leaderboard</h1>
+          <p className="text-[12px] text-muted">{period === "Quarterly" ? "Quarterly member standings" : "Weekly member performance"}</p>
+        </div>
+      </div>
+
       {/* Reset bar */}
       <div className="flex items-center justify-between rounded-2xl border border-hairline bg-card px-4 py-3">
         <p className="flex items-center gap-1.5 text-[12px] font-semibold text-muted">
           <span className="ms text-[16px] text-teal-pale">schedule</span>
-          {cycleLine}
+          {period === "Quarterly" ? lb.quarterlyLine : "Weekly board resets"}
         </p>
+        <span className="rounded-lg border border-teal/30 bg-teal-soft px-2.5 py-1.5 text-[11px] font-bold tabular text-teal-pale">{period === "Quarterly" ? "34d 08h" : countdown}</span>
         <button onClick={() => setInfo(true)} aria-label="How XP works" className="flex h-8 w-8 items-center justify-center rounded-full border border-hairline text-muted">
           <span className="ms text-[18px]">info</span>
         </button>
@@ -79,37 +81,7 @@ export default function Leaderboard() {
         ))}
       </div>
 
-      {/* You card or nonmember invitation */}
-      {showPersonal ? (
-        <div className="mt-3 flex items-center gap-3 rounded-2xl border border-indigo/50 bg-indigo-soft p-4">
-          <span className="font-display text-xl font-bold tabular text-indigo-bright">#{you.rank}</span>
-          <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-1 truncate text-sm font-bold text-fg">
-              You ({you.tier}) <span className="ms fill text-[14px] text-indigo-bright">verified</span>
-            </p>
-            <p className="mt-0.5 text-[11px] text-muted">{you.bracket} · +{you.needed} XP needed for Rank {you.neededFor}</p>
-          </div>
-          <div className="text-right">
-            <p className="font-display text-lg font-bold tabular text-fg">{(you.xp + store.xpBonus).toLocaleString()} XP</p>
-            <p className="text-[9px] font-bold uppercase tracking-widest text-muted">Points</p>
-          </div>
-        </div>
-      ) : (
-        <div className="mt-3 rounded-2xl border border-violet/40 bg-violet-soft p-4 text-center">
-          <p className="text-sm font-bold text-fg">Become a member to start earning XP</p>
-          <p className="mt-1 text-[12px] text-muted">Rankings are open to browse. Personal standings unlock with membership.</p>
-          <button onClick={() => navigate("/plans", { state: { from: "/leaderboard" } })} className="mt-3 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white">
-            View plans
-          </button>
-        </div>
-      )}
-
-      {/* Boost promo */}
-      <button onClick={() => setBoost(true)} className="mt-3 flex w-full items-center gap-2.5 rounded-2xl border border-violet/40 bg-violet-soft p-4 text-left active:scale-[0.99]">
-        <span className="ms fill text-[22px] text-gold">bolt</span>
-        <span className="flex-1 text-[13px] font-bold text-fg">{lb.boost.label}</span>
-        <span className="rounded-lg bg-violet px-3.5 py-2 text-[12px] font-bold text-white">{lb.boost.cta}</span>
-      </button>
+      {/* Personal standings are intentionally omitted from this public board. */}
 
       {/* Podium */}
       <div className="mt-4">
@@ -158,18 +130,6 @@ export default function Leaderboard() {
         <button onClick={() => setInfo(false)} className="mt-4 w-full rounded-xl bg-cta py-3 text-sm font-bold text-white">Acknowledge</button>
       </Modal>
 
-      {/* Boost modal */}
-      <Modal open={boost} onClose={() => setBoost(false)} labelledBy="lb-boost">
-        <div className="flex items-center justify-between">
-          <h3 id="lb-boost" className="text-lg font-bold text-fg">Boost your XP</h3>
-          <button onClick={() => setBoost(false)} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-faint"><span className="ms">close</span></button>
-        </div>
-        <div className="mt-4">
-          <SpinWheel onResult={handleBoostResult} />
-        </div>
-      </Modal>
-
-      <Toast message={toast?.message} action={toast?.action} open={!!toast} onDone={() => setToast(null)} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import data from "../data/streaks.json";
 import Modal from "./Modal";
@@ -26,15 +26,13 @@ export default function StreaksModal({ open, onClose, onClaim }) {
   });
   // Fresh profile (no streak history at mount) stays on the Day-1 view even
   // after collecting, so progress never jumps to the returning-user mock.
-  const freshRef = useRef(null);
-  if (freshRef.current === null) {
+  const [fresh] = useState(() => {
     let seen = true;
     try {
       seen = localStorage.getItem(LS_KEY) !== null;
     } catch {}
-    freshRef.current = !seen;
-  }
-  const fresh = freshRef.current;
+    return !seen;
+  });
   const days = fresh
     ? data.days.map((d, i) => ({
         ...d,
@@ -47,28 +45,6 @@ export default function StreaksModal({ open, onClose, onClaim }) {
   const finaleLeft = fresh ? (claimedToday ? 5 : 6) : data.finale.daysLeft;
 
   const collect = () => {
-    setClaimedToday(true);
-    localStorage.setItem(LS_KEY, JSON.stringify({ date: new Date().toDateString(), claimed: true }));
-    setToast(`+${data.claimXp} XP claimed`);
-    onClaim?.(data.claimXp);
-  };
-  const [freshReset, setFreshReset] = useState(false);
-  const [toast, setToast] = useState("");
-  const [paywall, setPaywall] = useState(false);
-  const collectedRef = useRef(false);
-  const memberState = getMembership();
-  const collectible = memberState.status === "active" || memberState.status === "cancelled";
-  const previewOnly = !collectible;
-
-  // Eligible members collect automatically on open. No second Claim button.
-  // A missed day restarts the seven-day sequence (demo rule, see spec notes).
-  useEffect(() => {
-    if (!open) {
-      collectedRef.current = false;
-      return;
-    }
-    setToast("");
-    if (!collectible || claimedToday) return;
     try {
       const s = JSON.parse(localStorage.getItem(LS_KEY));
       const last = s?.date ? new Date(s.date) : null;
@@ -78,13 +54,17 @@ export default function StreaksModal({ open, onClose, onClaim }) {
         setFreshReset(true);
       }
     } catch {}
-    if (collectedRef.current) return;
-    collectedRef.current = true;
-    collect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open ]);
-
-  // Progress labels derive from fresh/progress view above.
+    setClaimedToday(true);
+    localStorage.setItem(LS_KEY, JSON.stringify({ date: new Date().toDateString(), claimed: true }));
+    setToast(`+${data.claimXp} XP claimed`);
+    onClaim?.(data.claimXp);
+  };
+  const [freshReset, setFreshReset] = useState(false);
+  const [toast, setToast] = useState("");
+  const [paywall, setPaywall] = useState(false);
+  const memberState = getMembership();
+  const collectible = memberState.status === "active" || memberState.status === "cancelled";
+  const previewOnly = !collectible;
 
   return (
     <Modal open={open} onClose={onClose} labelledBy="streaks-title">
@@ -188,7 +168,11 @@ export default function StreaksModal({ open, onClose, onClaim }) {
         <p className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-teal/40 bg-teal-soft py-3.5 text-sm font-bold text-teal-pale">
           <span className="ms fill text-[19px]">check_circle</span> Today&apos;s reward collected
         </p>
-      ) : null}
+      ) : (
+        <button onClick={collect} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-cta py-3.5 text-sm font-bold uppercase tracking-wide text-white active:scale-[0.98]">
+          <span className="ms text-[19px]">local_fire_department</span> Claim today&apos;s reward
+        </button>
+      )}
       <p className="mt-2.5 flex items-center justify-center gap-1.5 text-[11px] text-muted">
         <span className="ms text-[14px]">schedule</span>
         Next unlock in <span className="font-bold tabular text-fg">{data.unlockIn}</span>

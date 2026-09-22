@@ -46,7 +46,7 @@ export default function DemoControls({ open, onClose }) {
         ))}
       </div>
       <button
-        onClick={() => { resetDemo(); onClose(); }}
+        onClick={() => { resetDemo(); onClose(); window.location.reload(); }}
         className="mt-3 w-full rounded-xl border border-red-400/40 bg-red-400/10 py-3 text-sm font-bold text-red-300"
       >
         Reset demo data

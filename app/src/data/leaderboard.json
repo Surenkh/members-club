@@ -1,9 +1,9 @@
 {
   "_mock": true,
   "_note": "Static prototype data transcribed from the Stitch export. Ranks, names and XP are mock content.",
-  "periods": ["Weekly", "Championship"],
+  "periods": ["Weekly", "Quarterly"],
   "resetLine": "Resets in 02d 11h · Top 3 win Credits",
-  "championshipLine": "Season ends in 21d 06h · Champion takes 5,000 Credits",
+  "quarterlyLine": "Quarter ends in 34d 08h · Champion takes 5,000 Credits",
   "cycleNote": "Leaderboard cycles close every Sunday at 23:59 UTC. Points are accrued through verified member partner check-ins, tier challenges, and curated syndicate allocations.",
   "rewards": [
     { "place": "1st Place", "reward": "+500 Credits", "perk": "Private Vault Key" },
@@ -26,10 +26,18 @@
     { "rank": 11, "initials": "LT", "name": "Liam Thorne", "tier": "Tier Two", "xp": 1510 },
     { "rank": 12, "initials": "CB", "name": "Chloe Bennett", "tier": "Tier Two", "xp": 1490 }
   ],
-  "championship": [
+  "quarterly": [
     { "rank": 1, "initials": "SR", "name": "Sophia R.", "tier": "Tier One Member", "xp": 18400, "reward": "+500 Credits", "leader": true, "verified": true },
     { "rank": 2, "initials": "MC", "name": "Marcus C.", "tier": "Tier One Member", "xp": 17120, "reward": "+250 Credits" },
     { "rank": 3, "initials": "IS", "name": "Ingrid Solberg", "tier": "Tier Two", "xp": 15940, "reward": "+100 Credits" },
-    { "rank": 4, "initials": "AK", "name": "Alexander K.", "tier": "Tier One Member", "xp": 14260 }
+    { "rank": 4, "initials": "AK", "name": "Alexander K.", "tier": "Tier One Member", "xp": 14260 },
+    { "rank": 5, "initials": "ER", "name": "Elena Rostova", "tier": "Tier One Member", "xp": 13180 },
+    { "rank": 6, "initials": "JW", "name": "James Walker", "tier": "Tier Two", "xp": 12040 },
+    { "rank": 7, "initials": "MN", "name": "Maya Nakamura", "tier": "Tier Two", "xp": 11270 },
+    { "rank": 8, "initials": "TF", "name": "Thomas Fischer", "tier": "Tier Two", "xp": 10490 },
+    { "rank": 9, "initials": "SJ", "name": "Sarah Jenkins", "tier": "Tier Two", "xp": 9810 },
+    { "rank": 10, "initials": "LV", "name": "Lucas Vance", "tier": "Tier Two", "xp": 9230 },
+    { "rank": 11, "initials": "LT", "name": "Liam Thorne", "tier": "Tier Two", "xp": 8760 },
+    { "rank": 12, "initials": "CB", "name": "Chloe Bennett", "tier": "Tier Two", "xp": 8340 }
   ]
 }

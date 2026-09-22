@@ -30,7 +30,7 @@ function ScrollManager() {
     } else {
       window.scrollTo(0, 0);
     }
-  }, [location.pathname]);
+  }, [location.pathname, navType]);
   useEffect(() => {
     const save = () => {
       try {
@@ -49,9 +49,9 @@ function ScrollManager() {
 function Shell({ streaksOpen, closeStreaks, onboarded, finishOnboarding, openStreaks }) {
   const location = useLocation();
   return (
-    <div className="mx-auto min-h-[100dvh] max-w-md bg-ink">
+    <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col bg-ink">
       <AppHeader onStreaks={openStreaks} />
-      <main className="page-enter pb-28" key={location.pathname}>
+      <main className="page-enter flex-1 pb-28" key={location.pathname}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/competitions" element={<Competitions />} />

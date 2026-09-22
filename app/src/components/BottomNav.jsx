@@ -10,18 +10,21 @@ const tabs = [
 
 export default function BottomNav() {
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40" aria-label="Primary">
-      <div className="mx-auto max-w-md px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2">
+    <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-hairline bg-ink" aria-label="Primary">
+      <div className="mx-auto max-w-md bg-ink px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-2">
         <div
-          className="flex items-stretch justify-between rounded-2xl border border-hairline/80 bg-card/90 backdrop-blur-md px-2"
-          style={{ boxShadow: "var(--shadow-bar)" }}
+          className="liquid-glass-strong flex items-stretch justify-between rounded-[1.4rem] px-2"
         >
           {tabs.map((t) => (
             <NavLink
               key={t.to}
               to={t.to}
               end={t.end}
-              className="group flex flex-1 flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] rounded-xl transition-colors"
+              className={({ isActive }) =>
+                `group flex flex-1 flex-col items-center justify-center gap-1 py-2.5 min-h-[56px] rounded-2xl transition-all ${
+                  isActive ? "bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]" : ""
+                }`
+              }
             >
               {({ isActive }) => (
                 <>
